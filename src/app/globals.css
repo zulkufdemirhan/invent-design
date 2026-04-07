@@ -1,12 +1,13 @@
 :root {
   --background: #ffffff;
-  --foreground: #171717;
+  --foreground: #2d2e33;
+  --font-inter: 'Inter', sans-serif;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: #17171a;
+    --foreground: #e3e5ed;
   }
 }
 
@@ -26,7 +27,9 @@ body {
   flex-direction: column;
   color: var(--foreground);
   background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-inter, 'Inter', sans-serif);
+  font-size: 13px;
+  line-height: 1.385;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
