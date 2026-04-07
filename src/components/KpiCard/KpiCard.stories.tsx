@@ -1,6 +1,7 @@
 import React from 'react';
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
-import { TruckOutlined, ShoppingOutlined, DollarOutlined, RiseOutlined } from '@ant-design/icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faTruck, faCartShopping, faDollarSign, faArrowTrendUp } from '@fortawesome/free-solid-svg-icons';
 import { KpiCard } from './KpiCard';
 import type { KpiCardProps } from './KpiCard';
 
@@ -48,7 +49,7 @@ const meta: Meta<typeof KpiCard> = {
     diff: '11.5%',
     description: 'This is a description',
     titleTooltip: 'More info about this metric',
-    icon: <TruckOutlined />,
+    icon: <FontAwesomeIcon icon={faTruck} />,
     showDiff: true,
     showDescription: true,
     showTitleIcon: true,
@@ -80,7 +81,7 @@ export const AllStates: Story = {
           diff="11.5%"
           description="vs. last period"
           titleTooltip="Metric info"
-          icon={<TruckOutlined />}
+          icon={<FontAwesomeIcon icon={faTruck} />}
           state={state}
           container="simple"
           size="large"
@@ -105,7 +106,7 @@ export const Sizes: Story = {
         value="8,356"
         diff="11.5%"
         description="vs. last period"
-        icon={<TruckOutlined />}
+        icon={<FontAwesomeIcon icon={faTruck} />}
         state="positive"
         container="simple"
         size="large"
@@ -115,7 +116,7 @@ export const Sizes: Story = {
         value="8,356"
         diff="11.5%"
         description="vs. last period"
-        icon={<TruckOutlined />}
+        icon={<FontAwesomeIcon icon={faTruck} />}
         state="positive"
         container="simple"
         size="small"
@@ -137,7 +138,7 @@ export const Containers: Story = {
           value="8,356"
           diff="11.5%"
           description={container}
-          icon={<TruckOutlined />}
+          icon={<FontAwesomeIcon icon={faTruck} />}
           state="positive"
           container={container}
           size="large"
@@ -158,7 +159,7 @@ export const WithActions: Story = {
         value="8,356"
         diff="11.5%"
         description="vs. last period"
-        icon={<TruckOutlined />}
+        icon={<FontAwesomeIcon icon={faTruck} />}
         state="negative"
         container="simple"
         size="large"
@@ -172,7 +173,7 @@ export const WithActions: Story = {
         value="$124,890"
         diff="3.2%"
         description="vs. last month"
-        icon={<DollarOutlined />}
+        icon={<FontAwesomeIcon icon={faDollarSign} />}
         state="positive"
         container="simple"
         size="large"
@@ -196,7 +197,7 @@ export const NoContainer: Story = {
         value="1,240"
         diff="5.0%"
         description="Today"
-        icon={<ShoppingOutlined />}
+        icon={<FontAwesomeIcon icon={faCartShopping} />}
         state="positive"
         container="none"
         size="large"
@@ -206,7 +207,7 @@ export const NoContainer: Story = {
         value="1,240"
         diff="5.0%"
         description="Today"
-        icon={<ShoppingOutlined />}
+        icon={<FontAwesomeIcon icon={faCartShopping} />}
         state="negative"
         container="none"
         size="small"
@@ -242,10 +243,10 @@ export const DashboardGrid: Story = {
   render: () => (
     <div style={{ padding: 24, background: '#f2f3f7', minHeight: '100vh' }}>
       <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
-        <KpiCard title="Total Revenue" value="$248,560" diff="12.3%" description="vs. last month" icon={<DollarOutlined />} state="positive" container="simple" size="large" />
-        <KpiCard title="Total Orders" value="3,842" diff="4.5%" description="vs. last month" icon={<ShoppingOutlined />} state="positive" container="simple" size="large" />
-        <KpiCard title="Lost Margin" value="$8,356" diff="11.5%" description="vs. last month" icon={<TruckOutlined />} state="negative" container="simple" size="large" />
-        <KpiCard title="Return Rate" value="2.1%" diff="0.3%" description="vs. last month" icon={<RiseOutlined />} state="warning" container="simple" size="large" />
+        <KpiCard title="Total Revenue" value="$248,560" diff="12.3%" description="vs. last month" icon={<FontAwesomeIcon icon={faDollarSign} />} state="positive" container="simple" size="large" />
+        <KpiCard title="Total Orders" value="3,842" diff="4.5%" description="vs. last month" icon={<FontAwesomeIcon icon={faCartShopping} />} state="positive" container="simple" size="large" />
+        <KpiCard title="Lost Margin" value="$8,356" diff="11.5%" description="vs. last month" icon={<FontAwesomeIcon icon={faTruck} />} state="negative" container="simple" size="large" />
+        <KpiCard title="Return Rate" value="2.1%" diff="0.3%" description="vs. last month" icon={<FontAwesomeIcon icon={faArrowTrendUp} />} state="warning" container="simple" size="large" />
         <KpiCard title="Avg. Order Value" value="$64.70" diff="1.8%" description="vs. last month" state="default" container="simple" size="large" showIcon={false} />
         <KpiCard title="Conversion" value="4.7%" diff="0.2%" description="vs. last month" state="positive" container="gray" size="large" showIcon={false} />
         <KpiCard title="Bounce Rate" value="38.4%" diff="2.1%" description="vs. last month" state="negative" container="gray" size="large" showIcon={false} />

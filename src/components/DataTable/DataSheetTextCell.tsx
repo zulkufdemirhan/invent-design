@@ -1,15 +1,17 @@
 import React from 'react';
 import { Tooltip } from 'antd';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
-  InfoCircleOutlined,
-  WarningOutlined,
-  SettingOutlined,
-  EditOutlined,
-  DownOutlined,
-} from '@ant-design/icons';
+  faCircleInfo,
+  faTriangleExclamation,
+  faGear,
+  faChevronDown,
+} from '@fortawesome/free-solid-svg-icons';
+import { faPenLine } from '@/tokens/faCustomIcons';
 import { dataTableColorsLight } from '@/tokens/colors';
 import { themeColorsLight } from '@/tokens/colors';
 import { fontFamily, fontSize, fontWeight, lineHeightPx } from '@/tokens/typography';
+import { iconSize } from '@/tokens/icons';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -56,7 +58,6 @@ export interface DataSheetTextCellProps {
 }
 
 // ─── Level indent map ─────────────────────────────────────────────────────────
-// Applied on the INNER content div, matching Figma pl- values
 
 const LEVEL_INDENT: Record<DataSheetTextCellLevel, number> = {
   'Level 1': 0,
@@ -133,13 +134,12 @@ export const DataSheetTextCell: React.FC<DataSheetTextCellProps> = ({
   const innerIndent = type === 'Expandable' ? LEVEL_INDENT[level] : 0;
 
   // ── Info/warning icon slot ─────────────────────────────────────────────────
-  // In Alert states → WarningOutlined in colorErrorText
-  // Otherwise      → InfoCircleOutlined in textMedium
   const infoIconNode = showInfoIcon ? (
     isAlert ? (
-      <WarningOutlined
+      <FontAwesomeIcon
+        icon={faTriangleExclamation}
         style={{
-          fontSize: fontSize.fontSize,
+          fontSize: iconSize.iconSizeSM,
           color: themeColorsLight.colorErrorText,
           flexShrink: 0,
           width: 13,
@@ -147,9 +147,10 @@ export const DataSheetTextCell: React.FC<DataSheetTextCellProps> = ({
       />
     ) : (
       <Tooltip title={typeof showInfoIcon === 'string' ? showInfoIcon : undefined}>
-        <InfoCircleOutlined
+        <FontAwesomeIcon
+          icon={faCircleInfo}
           style={{
-            fontSize: fontSize.fontSize,
+            fontSize: iconSize.iconSizeSM,
             color: dataTableColorsLight.textMedium,
             flexShrink: 0,
             width: 13,
@@ -189,19 +190,18 @@ export const DataSheetTextCell: React.FC<DataSheetTextCellProps> = ({
           gap: 4,
           minWidth: 0,
           paddingLeft: innerIndent,
-          // needed so inner content respects the indent
           boxSizing: 'border-box',
         }}
       >
         {/* Expandable chevron — always visible for Expandable type */}
         {type === 'Expandable' && (
-          <DownOutlined
+          <FontAwesomeIcon
+            icon={faChevronDown}
             style={{
-              fontSize: 12,
+              fontSize: iconSize.iconSizeXS,
               color: dataTableColorsLight.textMedium,
               flexShrink: 0,
               width: 13,
-              textAlign: 'center',
               cursor: 'pointer',
             }}
             onClick={(e) => {
@@ -213,9 +213,10 @@ export const DataSheetTextCell: React.FC<DataSheetTextCellProps> = ({
 
         {/* Left gear icon (showLeftIcon) */}
         {showLeftIcon && (
-          <SettingOutlined
+          <FontAwesomeIcon
+            icon={faGear}
             style={{
-              fontSize: fontSize.fontSize,
+              fontSize: iconSize.iconSizeSM,
               color: dataTableColorsLight.textMedium,
               flexShrink: 0,
               width: 13,
@@ -257,9 +258,10 @@ export const DataSheetTextCell: React.FC<DataSheetTextCellProps> = ({
 
         {/* Edit icon — always shown for Editable type */}
         {type === 'Editable' && (
-          <EditOutlined
+          <FontAwesomeIcon
+            icon={faPenLine}
             style={{
-              fontSize: fontSize.fontSize,
+              fontSize: iconSize.iconSizeSM,
               color: dataTableColorsLight.textMedium,
               flexShrink: 0,
               width: 16,

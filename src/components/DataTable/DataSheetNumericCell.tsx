@@ -1,17 +1,19 @@
 import React from 'react';
 import { Tooltip } from 'antd';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
-  InfoCircleOutlined,
-  WarningOutlined,
-  EditOutlined,
-  DownOutlined,
-  LockOutlined,
-  ThunderboltOutlined,
-  SettingOutlined,
-} from '@ant-design/icons';
+  faCircleInfo,
+  faTriangleExclamation,
+  faChevronDown,
+  faLock,
+  faBolt,
+  faGear,
+} from '@fortawesome/free-solid-svg-icons';
+import { faPenLine } from '@/tokens/faCustomIcons';
 import { dataTableColorsLight } from '@/tokens/colors';
 import { themeColorsLight, baseColorPalettes } from '@/tokens/colors';
 import { fontFamily, fontSize, fontWeight, lineHeightPx } from '@/tokens/typography';
+import { iconSize } from '@/tokens/icons';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -44,7 +46,7 @@ export interface DataSheetNumericCellProps {
   /** Expandable row hierarchy level — drives inner-content left indent */
   level?: DataSheetNumericCellLevel;
   /**
-   * Show right info/warning icon (left side of content area).
+   * Show info/warning icon (left side of content area).
    * Pass a string to use as tooltip text.
    * In Alert state renders as a warning triangle in error color.
    */
@@ -81,7 +83,6 @@ function getStateTokens(
   state: DataSheetNumericCellState,
   type: DataSheetNumericCellType
 ): StateTokens {
-  // Locked and Marked have their own base backgrounds but still respond to selection states
   const baseLockedBg = baseColorPalettes['orange-1'];
   const baseMarkedBg = baseColorPalettes['gold-1'];
 
@@ -125,7 +126,6 @@ function getStateTokens(
         borderColor: dataTableColorsLight.accentColor,
       };
     default:
-      // Default state — use type-specific background
       if (type === 'Locked') return { background: baseLockedBg, borderColor: dataTableColorsLight.borderColor };
       if (type === 'Marked') return { background: baseMarkedBg, borderColor: dataTableColorsLight.borderColor };
       return {
@@ -161,9 +161,10 @@ export const DataSheetNumericCell: React.FC<DataSheetNumericCellProps> = ({
   let typeIconNode: React.ReactNode = null;
   if (type === 'Editable') {
     typeIconNode = (
-      <EditOutlined
+      <FontAwesomeIcon
+        icon={faPenLine}
         style={{
-          fontSize: fontSize.fontSize,
+          fontSize: iconSize.iconSizeSM,
           color: dataTableColorsLight.textMedium,
           flexShrink: 0,
           width: 13,
@@ -172,9 +173,10 @@ export const DataSheetNumericCell: React.FC<DataSheetNumericCellProps> = ({
     );
   } else if (type === 'Locked') {
     typeIconNode = (
-      <LockOutlined
+      <FontAwesomeIcon
+        icon={faLock}
         style={{
-          fontSize: 14,
+          fontSize: iconSize.iconSize,
           color: baseColorPalettes['orange-6'],
           flexShrink: 0,
           width: 14,
@@ -183,9 +185,10 @@ export const DataSheetNumericCell: React.FC<DataSheetNumericCellProps> = ({
     );
   } else if (type === 'Marked') {
     typeIconNode = (
-      <ThunderboltOutlined
+      <FontAwesomeIcon
+        icon={faBolt}
         style={{
-          fontSize: 14,
+          fontSize: iconSize.iconSize,
           color: baseColorPalettes['gold-6'],
           flexShrink: 0,
           width: 14,
@@ -197,9 +200,10 @@ export const DataSheetNumericCell: React.FC<DataSheetNumericCellProps> = ({
   // ── Info/warning icon ──────────────────────────────────────────────────────
   const infoIconNode = showInfoIcon ? (
     isAlert ? (
-      <WarningOutlined
+      <FontAwesomeIcon
+        icon={faTriangleExclamation}
         style={{
-          fontSize: fontSize.fontSize,
+          fontSize: iconSize.iconSizeSM,
           color: themeColorsLight.colorErrorText,
           flexShrink: 0,
           width: 13,
@@ -207,9 +211,10 @@ export const DataSheetNumericCell: React.FC<DataSheetNumericCellProps> = ({
       />
     ) : (
       <Tooltip title={typeof showInfoIcon === 'string' ? showInfoIcon : undefined}>
-        <InfoCircleOutlined
+        <FontAwesomeIcon
+          icon={faCircleInfo}
           style={{
-            fontSize: fontSize.fontSize,
+            fontSize: iconSize.iconSizeSM,
             color: dataTableColorsLight.textMedium,
             flexShrink: 0,
             width: 13,
@@ -285,13 +290,13 @@ export const DataSheetNumericCell: React.FC<DataSheetNumericCellProps> = ({
       >
         {/* Expandable chevron */}
         {type === 'Expandable' && (
-          <DownOutlined
+          <FontAwesomeIcon
+            icon={faChevronDown}
             style={{
-              fontSize: 12,
+              fontSize: iconSize.iconSizeXS,
               color: dataTableColorsLight.textMedium,
               flexShrink: 0,
               width: 13,
-              textAlign: 'center',
               cursor: 'pointer',
               marginRight: 4,
             }}
@@ -324,9 +329,10 @@ export const DataSheetNumericCell: React.FC<DataSheetNumericCellProps> = ({
 
         {/* Custom (gear) icon — right of number */}
         {showCustomIcon && (
-          <SettingOutlined
+          <FontAwesomeIcon
+            icon={faGear}
             style={{
-              fontSize: fontSize.fontSize,
+              fontSize: iconSize.iconSizeSM,
               color: dataTableColorsLight.textMedium,
               flexShrink: 0,
               width: 13,

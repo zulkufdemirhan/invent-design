@@ -1,6 +1,27 @@
 import type { ThemeConfig } from 'antd';
 import { themeColorsLight, themeColorsDark } from '@/tokens/colors';
 import { fontFamily, fontSize, lineHeightRatio } from '@/tokens/typography';
+import { borderRadius, padding, margin } from '@/tokens/spacing';
+
+// ─── Shared spacing & radius tokens ──────────────────────────────────────────
+
+const spacingTokens = {
+  borderRadius:   borderRadius.borderRadius,
+  borderRadiusXS: borderRadius.borderRadiusXS,
+  borderRadiusSM: borderRadius.borderRadiusSM,
+  borderRadiusLG: borderRadius.borderRadiusLG,
+  padding:        padding.padding,
+  paddingXS:      padding.paddingXS,
+  paddingSM:      padding.paddingSM,
+  paddingLG:      padding.paddingLG,
+  paddingXL:      padding.paddingXL,
+  margin:         margin.margin,
+  marginXS:       margin.marginXS,
+  marginSM:       margin.marginSM,
+  marginLG:       margin.marginLG,
+  marginXL:       margin.marginXL,
+  marginXXL:      margin.marginXXL,
+};
 
 // ─── Shared typography tokens ─────────────────────────────────────────────────
 
@@ -29,6 +50,7 @@ const typographyTokens = {
 
 export const lightTheme: ThemeConfig = {
   token: {
+    ...spacingTokens,
     ...typographyTokens,
     // Primary
     colorPrimary:            themeColorsLight.colorPrimary,
@@ -100,6 +122,7 @@ export const lightTheme: ThemeConfig = {
 
 export const darkTheme: ThemeConfig = {
   token: {
+    ...spacingTokens,
     ...typographyTokens,
     // Primary
     colorPrimary:            themeColorsDark.colorPrimary,

@@ -1,13 +1,14 @@
 import React from 'react';
 import { Checkbox, Tooltip } from 'antd';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
-  DownOutlined,
-  InfoCircleOutlined,
-  FilterOutlined,
-  FilterFilled,
-} from '@ant-design/icons';
+  faChevronDown,
+  faCircleInfo,
+  faFilter,
+} from '@fortawesome/free-solid-svg-icons';
 import { dataTableColorsLight } from '@/tokens/colors';
 import { fontFamily, fontSize, fontWeight, lineHeightPx } from '@/tokens/typography';
+import { iconSize } from '@/tokens/icons';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -88,7 +89,6 @@ export const DataSheetTitle: React.FC<DataSheetTitleProps> = ({
   const textColor = getTextColor(state, filterApplied);
   const iconColor = getIconColor(state, filterApplied);
 
-  // Show interactive icons only when not in Selected/filterApplied states
   const showIcons = state !== 'Selected' || filterApplied;
 
   const containerStyle: React.CSSProperties = {
@@ -131,8 +131,15 @@ export const DataSheetTitle: React.FC<DataSheetTitleProps> = ({
     <div style={containerStyle} onClick={onClick}>
       {/* Expand arrow (Expandable only) */}
       {type === 'Expandable' && (
-        <DownOutlined
-          style={{ fontSize: 12, color: isSelected ? dataTableColorsLight.accentFg : dataTableColorsLight.bgIconHeader, flexShrink: 0 }}
+        <FontAwesomeIcon
+          icon={faChevronDown}
+          style={{
+            fontSize: iconSize.iconSizeXS,
+            color: isSelected ? dataTableColorsLight.accentFg : dataTableColorsLight.bgIconHeader,
+            flexShrink: 0,
+            cursor: 'pointer',
+            width: iconSize.iconSizeXS,
+          }}
           onClick={(e) => { e.stopPropagation(); onExpandClick?.(e); }}
         />
       )}
@@ -159,8 +166,15 @@ export const DataSheetTitle: React.FC<DataSheetTitleProps> = ({
       {/* Info icon */}
       {showInfo && showIcons && (
         <Tooltip title={showInfo}>
-          <InfoCircleOutlined
-            style={{ fontSize: 12, color: iconColor, flexShrink: 0, cursor: 'pointer' }}
+          <FontAwesomeIcon
+            icon={faCircleInfo}
+            style={{
+              fontSize: iconSize.iconSizeXS,
+              color: iconColor,
+              flexShrink: 0,
+              cursor: 'pointer',
+              width: iconSize.iconSizeXS,
+            }}
             onClick={(e) => e.stopPropagation()}
           />
         </Tooltip>
@@ -168,25 +182,31 @@ export const DataSheetTitle: React.FC<DataSheetTitleProps> = ({
 
       {/* Selected state icons */}
       {isSelected && showInfo && (
-        <InfoCircleOutlined style={{ fontSize: 12, color: dataTableColorsLight.accentFg, flexShrink: 0 }} />
+        <FontAwesomeIcon
+          icon={faCircleInfo}
+          style={{ fontSize: iconSize.iconSizeXS, color: dataTableColorsLight.accentFg, flexShrink: 0, width: iconSize.iconSizeXS }}
+        />
       )}
       {isSelected && showFilter && (
-        <FilterOutlined style={{ fontSize: 12, color: dataTableColorsLight.accentFg, flexShrink: 0 }} />
+        <FontAwesomeIcon
+          icon={faFilter}
+          style={{ fontSize: iconSize.iconSizeXS, color: dataTableColorsLight.accentFg, flexShrink: 0, width: iconSize.iconSizeXS }}
+        />
       )}
 
       {/* Filter icon (not selected) */}
       {!isSelected && showFilter && (
-        filterApplied ? (
-          <FilterFilled
-            style={{ fontSize: 12, color: dataTableColorsLight.accentColor, flexShrink: 0, cursor: 'pointer' }}
-            onClick={(e) => { e.stopPropagation(); onFilterClick?.(e); }}
-          />
-        ) : (
-          <FilterOutlined
-            style={{ fontSize: 12, color: iconColor, flexShrink: 0, cursor: 'pointer' }}
-            onClick={(e) => { e.stopPropagation(); onFilterClick?.(e); }}
-          />
-        )
+        <FontAwesomeIcon
+          icon={faFilter}
+          style={{
+            fontSize: iconSize.iconSizeXS,
+            color: filterApplied ? dataTableColorsLight.accentColor : iconColor,
+            flexShrink: 0,
+            cursor: 'pointer',
+            width: iconSize.iconSizeXS,
+          }}
+          onClick={(e) => { e.stopPropagation(); onFilterClick?.(e); }}
+        />
       )}
     </div>
   );

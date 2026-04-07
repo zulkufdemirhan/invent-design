@@ -1,13 +1,15 @@
 import React from 'react';
 import { Button, Tooltip } from 'antd';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
-  InfoCircleOutlined,
-  ArrowUpOutlined,
-  ArrowDownOutlined,
-  ArrowRightOutlined,
-} from '@ant-design/icons';
+  faCircleInfo,
+  faArrowUp,
+  faArrowDown,
+  faArrowRight,
+} from '@fortawesome/free-solid-svg-icons';
 import { themeColorsLight } from '@/tokens/colors';
 import { fontFamily, fontSize, fontWeight, lineHeightPx } from '@/tokens/typography';
+import { iconSize } from '@/tokens/icons';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -56,19 +58,19 @@ export interface KpiCardProps {
 // ─── State color map ──────────────────────────────────────────────────────────
 
 const STATE_COLORS: Record<KpiState, string> = {
-  default: themeColorsLight.colorText,
+  default:  themeColorsLight.colorText,
   positive: themeColorsLight.colorSuccessText,
   negative: themeColorsLight.colorErrorText,
-  warning: themeColorsLight.colorWarningText,
-  custom: themeColorsLight.colorText,
+  warning:  themeColorsLight.colorWarningText,
+  custom:   themeColorsLight.colorText,
 };
 
 const DIFF_ICONS: Record<KpiState, React.ReactNode> = {
-  default: <ArrowRightOutlined />,
-  positive: <ArrowUpOutlined />,
-  negative: <ArrowDownOutlined />,
-  warning: <ArrowUpOutlined />,
-  custom: <ArrowRightOutlined />,
+  default:  <FontAwesomeIcon icon={faArrowRight} />,
+  positive: <FontAwesomeIcon icon={faArrowUp} />,
+  negative: <FontAwesomeIcon icon={faArrowDown} />,
+  warning:  <FontAwesomeIcon icon={faArrowUp} />,
+  custom:   <FontAwesomeIcon icon={faArrowRight} />,
 };
 
 // ─── Size tokens — sourced from 3-Typography Figma collection ─────────────────
@@ -77,46 +79,36 @@ const SIZE_TOKENS = {
   large: {
     width: 240,
     padding: 16,
-    // value → heading2
     valueFontSize:   fontSize.fontSizeHeading2,
     valueLineHeight: `${lineHeightPx.lineHeightHeading2}px`,
     valueFontWeight: fontWeight.strong,
-    // title → base
     titleFontSize:   fontSize.fontSize,
     titleLineHeight: `${lineHeightPx.lineHeight}px`,
-    // description → sm
     descFontSize:    fontSize.fontSizeSM,
     descLineHeight:  `${lineHeightPx.lineHeightSM}px`,
-    // diff → base medium
     diffFontSize:    fontSize.fontSize,
     diffLineHeight:  `${lineHeightPx.lineHeight}px`,
-    // icons
-    iconSize:        18,
-    titleIconSize:   fontSize.fontSizeLG,
-    diffIconSize:    fontSize.fontSizeLG,
+    iconSize:        iconSize.iconSizeXXL,
+    titleIconSize:   iconSize.iconSizeLG,
+    diffIconSize:    iconSize.iconSizeLG,
     gap: 8,
     innerGap: 4,
   },
   small: {
     width: 200,
     padding: 12,
-    // value → heading4
     valueFontSize:   fontSize.fontSizeHeading4,
     valueLineHeight: `${lineHeightPx.lineHeightHeading4}px`,
     valueFontWeight: fontWeight.strong,
-    // title → sm
     titleFontSize:   fontSize.fontSizeSM,
     titleLineHeight: `${lineHeightPx.lineHeightSM}px`,
-    // description → xs
     descFontSize:    fontSize.fontSizeXS,
     descLineHeight:  `${lineHeightPx.lineHeightXS}px`,
-    // diff → sm medium
     diffFontSize:    fontSize.fontSizeSM,
     diffLineHeight:  `${lineHeightPx.lineHeightSM}px`,
-    // icons
-    iconSize:        16,
-    titleIconSize:   fontSize.fontSizeSM,
-    diffIconSize:    fontSize.fontSizeSM,
+    iconSize:        iconSize.iconSizeXL,
+    titleIconSize:   iconSize.iconSizeSM,
+    diffIconSize:    iconSize.iconSizeSM,
     gap: 8,
     innerGap: 4,
   },
@@ -200,12 +192,14 @@ export const KpiCard: React.FC<KpiCardProps> = ({
             </span>
             {showTitleIcon && (
               <Tooltip title={titleTooltip}>
-                <InfoCircleOutlined
+                <FontAwesomeIcon
+                  icon={faCircleInfo}
                   style={{
                     fontSize: t.titleIconSize,
                     color: themeColorsLight.colorTextTertiary,
                     flexShrink: 0,
                     cursor: titleTooltip ? 'pointer' : 'default',
+                    width: t.titleIconSize,
                   }}
                 />
               </Tooltip>
