@@ -18,3 +18,6 @@ export type { DataSheetActionButtonsCellProps, DataSheetActionButtonsCellState, 
 
 export { DataSheetTotalRow } from './DataSheetTotalRow';
 export type { DataSheetTotalRowProps, DataSheetTotalRowState, DataSheetTotalRowType } from './DataSheetTotalRow';
+
+export { DataTableToolbar } from './DataTableToolbar';
+export type { DataTableToolbarProps, DataTableToolbarType, DataTableToolbarBreakpoint } from './DataTableToolbar';
