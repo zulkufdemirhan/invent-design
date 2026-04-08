@@ -78,14 +78,63 @@ export interface CubMenuProps {
 // ─── Default items ────────────────────────────────────────────────────────────
 
 export const DEFAULT_MENU_ITEMS: CubMenuItem[] = [
-  { key: 'home',          label: 'Home',                       icon: faHouse,               expandable: false },
-  { key: 'markdown',      label: 'Markdown',                   icon: faTag,                 expandable: true  },
-  { key: 'pricing',       label: 'Pricing',                    icon: faCamera,              expandable: true  },
-  { key: 'promotion',     label: 'Promotion Analysis',         icon: faChartPie,            expandable: true  },
-  { key: 'inventory',     label: 'Inventory Management',       icon: faLayerGroup,          expandable: true  },
-  { key: 'prepack',       label: 'Size Prepack Optimization',  icon: faCubes,               expandable: true  },
-  { key: 'replenishment', label: 'DC Replenishment Orders',    icon: faTruck,               expandable: true  },
-  { key: 'allocation',    label: 'Allocation',                 icon: faArrowRightArrowLeft, expandable: true  },
+  { key: 'home', label: 'Home', icon: faHouse },
+  {
+    key: 'markdown', label: 'Markdown', icon: faTag,
+    children: [
+      { key: 'markdown-item-1', label: 'Menu Item 1' },
+      { key: 'markdown-item-2', label: 'Menu Item 2' },
+      { key: 'markdown-item-3', label: 'Menu Item 3' },
+    ],
+  },
+  {
+    key: 'pricing', label: 'Pricing', icon: faCamera,
+    children: [
+      { key: 'pricing-item-1', label: 'Menu Item 1' },
+      { key: 'pricing-item-2', label: 'Menu Item 2' },
+      { key: 'pricing-item-3', label: 'Menu Item 3' },
+    ],
+  },
+  {
+    key: 'promotion', label: 'Promotion Analysis', icon: faChartPie,
+    children: [
+      { key: 'promotion-item-1', label: 'Menu Item 1' },
+      { key: 'promotion-item-2', label: 'Menu Item 2' },
+      { key: 'promotion-item-3', label: 'Menu Item 3' },
+    ],
+  },
+  {
+    key: 'inventory', label: 'Inventory Management', icon: faLayerGroup,
+    children: [
+      { key: 'inventory-item-1', label: 'Menu Item 1' },
+      { key: 'inventory-item-2', label: 'Menu Item 2' },
+      { key: 'inventory-item-3', label: 'Menu Item 3' },
+    ],
+  },
+  {
+    key: 'prepack', label: 'Size Prepack Optimization', icon: faCubes,
+    children: [
+      { key: 'prepack-item-1', label: 'Menu Item 1' },
+      { key: 'prepack-item-2', label: 'Menu Item 2' },
+      { key: 'prepack-item-3', label: 'Menu Item 3' },
+    ],
+  },
+  {
+    key: 'replenishment', label: 'DC Replenishment Orders', icon: faTruck,
+    children: [
+      { key: 'replenishment-item-1', label: 'Menu Item 1' },
+      { key: 'replenishment-item-2', label: 'Menu Item 2' },
+      { key: 'replenishment-item-3', label: 'Menu Item 3' },
+    ],
+  },
+  {
+    key: 'allocation', label: 'Allocation', icon: faArrowRightArrowLeft,
+    children: [
+      { key: 'allocation-item-1', label: 'Menu Item 1' },
+      { key: 'allocation-item-2', label: 'Menu Item 2' },
+      { key: 'allocation-item-3', label: 'Menu Item 3' },
+    ],
+  },
   {
     key: 'transfer',
     label: 'Transfer',
@@ -97,24 +146,73 @@ export const DEFAULT_MENU_ITEMS: CubMenuItem[] = [
         key: 'transfer-reports',
         label: 'Reports',
         children: [
-          { key: 'transfer-reports-monthly',    label: 'Monthly Transfer Performance Dashboard' },
-          { key: 'transfer-reports-inventory',  label: 'Store Inventory Positions' },
+          { key: 'transfer-reports-monthly',   label: 'Monthly Transfer Performance Dashboard' },
+          { key: 'transfer-reports-inventory', label: 'Store Inventory Positions' },
         ],
       },
     ],
   },
-  { key: 'forecast',      label: 'Forecast',                   icon: faChartLine,           expandable: true  },
-  { key: 'assortment',    label: 'Assortment',                 icon: faShirt,               expandable: true  },
-  { key: 'financial',     label: 'Merchandising Financial Plan', icon: faMoneyBillWave,     expandable: true  },
+  {
+    key: 'forecast', label: 'Forecast', icon: faChartLine,
+    children: [
+      { key: 'forecast-item-1', label: 'Menu Item 1' },
+      { key: 'forecast-item-2', label: 'Menu Item 2' },
+      { key: 'forecast-item-3', label: 'Menu Item 3' },
+    ],
+  },
+  {
+    key: 'assortment', label: 'Assortment', icon: faShirt,
+    children: [
+      { key: 'assortment-item-1', label: 'Menu Item 1' },
+      { key: 'assortment-item-2', label: 'Menu Item 2' },
+      { key: 'assortment-item-3', label: 'Menu Item 3' },
+    ],
+  },
+  {
+    key: 'financial', label: 'Merchandising Financial Plan', icon: faMoneyBillWave,
+    children: [
+      { key: 'financial-item-1', label: 'Menu Item 1' },
+      { key: 'financial-item-2', label: 'Menu Item 2' },
+      { key: 'financial-item-3', label: 'Menu Item 3' },
+    ],
+  },
 ];
 
 export const DEFAULT_SECONDARY_ITEMS: CubMenuItem[] = [
-  { key: 'data-maintenance', label: 'Data Maintenance',  icon: faDatabase,       expandable: true  },
-  { key: 'insight-hub',      label: 'Insight Hub',       icon: faLightbulb,      expandable: false },
-  { key: 'reports',          label: 'Reports',           icon: faFileMedical,    expandable: true  },
-  { key: 'documentation',    label: 'Documentation',     icon: faCircleQuestion, expandable: false },
-  { key: 'admin',            label: 'Admin',             icon: faUserGear,       expandable: true  },
-  { key: 'in-development',   label: 'In Development',    icon: faCode,           expandable: true  },
+  {
+    key: 'data-maintenance', label: 'Data Maintenance', icon: faDatabase,
+    children: [
+      { key: 'data-maintenance-item-1', label: 'Menu Item 1' },
+      { key: 'data-maintenance-item-2', label: 'Menu Item 2' },
+      { key: 'data-maintenance-item-3', label: 'Menu Item 3' },
+    ],
+  },
+  { key: 'insight-hub', label: 'Insight Hub', icon: faLightbulb },
+  {
+    key: 'reports', label: 'Reports', icon: faFileMedical,
+    children: [
+      { key: 'reports-item-1', label: 'Menu Item 1' },
+      { key: 'reports-item-2', label: 'Menu Item 2' },
+      { key: 'reports-item-3', label: 'Menu Item 3' },
+    ],
+  },
+  { key: 'documentation', label: 'Documentation', icon: faCircleQuestion },
+  {
+    key: 'admin', label: 'Admin', icon: faUserGear,
+    children: [
+      { key: 'admin-item-1', label: 'Menu Item 1' },
+      { key: 'admin-item-2', label: 'Menu Item 2' },
+      { key: 'admin-item-3', label: 'Menu Item 3' },
+    ],
+  },
+  {
+    key: 'in-development', label: 'In Development', icon: faCode,
+    children: [
+      { key: 'in-development-item-1', label: 'Menu Item 1' },
+      { key: 'in-development-item-2', label: 'Menu Item 2' },
+      { key: 'in-development-item-3', label: 'Menu Item 3' },
+    ],
+  },
 ];
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────

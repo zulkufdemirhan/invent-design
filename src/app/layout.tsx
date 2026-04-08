@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import AntdRegistry from '@/lib/AntdRegistry';
+import AppShell from '@/components/AppShell/AppShell';
 import './globals.css';
 
 const inter = Inter({
@@ -23,7 +24,9 @@ export default function RootLayout({
   return (
     <html lang="en" className={inter.variable}>
       <body>
-        <AntdRegistry>{children}</AntdRegistry>
+        <AntdRegistry>
+          <AppShell>{children}</AppShell>
+        </AntdRegistry>
       </body>
     </html>
   );
