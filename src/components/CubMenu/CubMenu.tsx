@@ -240,6 +240,7 @@ const SubmenuRow: React.FC<{
   onSelect: () => void;
 }> = ({ item, indent, selected, open, hasChildren, onToggle, onSelect }) => {
   const isActiveLeaf = selected && !hasChildren;
+  const [hovered, setHovered] = useState(false);
 
   const handleClick = () => {
     if (hasChildren) {
@@ -255,6 +256,8 @@ const SubmenuRow: React.FC<{
       tabIndex={0}
       onClick={handleClick}
       onKeyDown={(e) => e.key === 'Enter' && handleClick()}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
       style={{
         display: 'flex',
         alignItems: 'center',
@@ -266,7 +269,11 @@ const SubmenuRow: React.FC<{
         cursor: 'pointer',
         width: '100%',
         boxSizing: 'border-box',
-        background: isActiveLeaf ? themeColorsLight.colorPrimary : 'transparent',
+        background: isActiveLeaf
+          ? themeColorsLight.colorPrimary
+          : hovered
+          ? themeColorsLight.colorFillSecondary
+          : 'transparent',
         flexShrink: 0,
         color: isActiveLeaf
           ? themeColorsLight.colorTextLightSolid
@@ -390,6 +397,7 @@ const MenuItemInline: React.FC<{
   const isExpandable = hasChildren || item.expandable;
   // Parent is "active-open" = has children, is open, and a descendant is selected
   const isActiveOpen = hasChildren && isOpen && selected;
+  const [hovered, setHovered] = useState(false);
 
   const textColor =
     isActiveOpen
@@ -410,6 +418,8 @@ const MenuItemInline: React.FC<{
       tabIndex={0}
       onClick={handleClick}
       onKeyDown={(e) => e.key === 'Enter' && handleClick()}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
       style={{
         display: 'flex',
         alignItems: 'center',
@@ -423,6 +433,8 @@ const MenuItemInline: React.FC<{
         background:
           !hasChildren && selected
             ? themeColorsLight.colorPrimaryBg
+            : hovered
+            ? themeColorsLight.colorFillSecondary
             : 'transparent',
         flexShrink: 0,
         color: textColor,
@@ -492,35 +504,46 @@ const MenuItemCollapsed: React.FC<{
   item: CubMenuItem;
   selected: boolean;
   onClick: () => void;
-}> = ({ item, selected, onClick }) => (
-  <div
-    role="menuitem"
-    tabIndex={0}
-    title={item.label}
-    onClick={onClick}
-    onKeyDown={(e) => e.key === 'Enter' && onClick()}
-    style={{
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      padding: padding.paddingXXS,
-      borderRadius: borderRadius.borderRadiusLG,
-      cursor: 'pointer',
-      width: 32,
-      height: 32,
-      flexShrink: 0,
-      background: selected ? themeColorsLight.colorPrimaryBg : 'transparent',
-      color: selected ? themeColorsLight.colorPrimaryText : themeColorsLight.colorText,
-    }}
-  >
-    {item.icon && (
-      <FontAwesomeIcon
-        icon={item.icon}
-        style={{ fontSize: iconSize.iconSizeXL, width: iconSize.iconSizeXL, height: iconSize.iconSizeXL }}
-      />
-    )}
-  </div>
-);
+}> = ({ item, selected, onClick }) => {
+  const [hovered, setHovered] = useState(false);
+  return (
+    <div
+      role="menuitem"
+      tabIndex={0}
+      title={item.label}
+      onClick={onClick}
+      onKeyDown={(e) => e.key === 'Enter' && onClick()}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: padding.paddingXXS,
+        borderRadius: borderRadius.borderRadiusLG,
+        cursor: 'pointer',
+        width: 32,
+        height: 32,
+        flexShrink: 0,
+        background: selected
+          ? themeColorsLight.colorPrimary
+          : hovered
+          ? themeColorsLight.colorFillSecondary
+          : 'transparent',
+        color: selected
+          ? themeColorsLight.colorTextLightSolid
+          : themeColorsLight.colorText,
+      }}
+    >
+      {item.icon && (
+        <FontAwesomeIcon
+          icon={item.icon}
+          style={{ fontSize: iconSize.iconSizeXL, width: iconSize.iconSizeXL, height: iconSize.iconSizeXL }}
+        />
+      )}
+    </div>
+  );
+};
 
 // ─── Separator ────────────────────────────────────────────────────────────────
 
@@ -544,10 +567,12 @@ const RemiExpanded: React.FC = () => (
     style={{
       padding: padding.paddingSM,
       borderRadius: borderRadius.borderRadiusLG,
-      background: `linear-gradient(154deg, ${themeColorsLight.colorRemiBg} 30%, ${themeColorsLight.colorRemiBorder} 100%)`,
+      backgroundImage: `url('/images/remi-button-expanded-bg.png')`,
+      backgroundSize: 'cover',
+      backgroundPosition: 'center',
       display: 'flex',
       flexDirection: 'column',
-      gap: padding.paddingXXS,
+      gap: padding.paddingXS,
       overflow: 'hidden',
       position: 'relative',
       width: '100%',
@@ -555,8 +580,13 @@ const RemiExpanded: React.FC = () => (
       flexShrink: 0,
     }}
   >
+    {/* Title row */}
     <div style={{ display: 'flex', alignItems: 'center', gap: padding.paddingXS }}>
-      <span style={{ fontSize: 14, lineHeight: 1 }}>✦</span>
+      <img
+        src="/images/remi-logo.png"
+        alt="Remi"
+        style={{ width: 14, height: 14, flexShrink: 0, display: 'block' }}
+      />
       <span
         style={{
           fontFamily,
@@ -570,6 +600,8 @@ const RemiExpanded: React.FC = () => (
         Ask Remi
       </span>
     </div>
+
+    {/* Description */}
     <p
       style={{
         margin: 0,
@@ -582,6 +614,36 @@ const RemiExpanded: React.FC = () => (
     >
       Access all Remi Agents in one place and explore their skills.
     </p>
+
+    {/* CTA */}
+    <div
+      role="button"
+      tabIndex={0}
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: '100%',
+        height: 28,
+        borderRadius: borderRadius.borderRadius,
+        background: themeColorsLight.colorRemi,
+        cursor: 'pointer',
+        boxSizing: 'border-box',
+      }}
+    >
+      <span
+        style={{
+          fontFamily,
+          fontSize: fontSize.fontSizeSM,
+          fontWeight: fontWeight.medium,
+          lineHeight: `${lineHeightPx.lineHeightSM}px`,
+          color: themeColorsLight.colorTextLightSolid,
+          whiteSpace: 'nowrap',
+        }}
+      >
+        Start Exploring
+      </span>
+    </div>
   </div>
 );
 
@@ -601,7 +663,11 @@ const RemiCollapsed: React.FC = () => (
       background: `linear-gradient(135deg, ${themeColorsLight.colorRemiBg} 30%, ${themeColorsLight.colorRemiBorder} 100%)`,
     }}
   >
-    <span style={{ fontSize: 14, lineHeight: 1, color: themeColorsLight.colorRemiText }}>✦</span>
+    <img
+      src="/images/remi-logo.png"
+      alt="Remi"
+      style={{ width: 16, height: 16, display: 'block' }}
+    />
   </div>
 );
 

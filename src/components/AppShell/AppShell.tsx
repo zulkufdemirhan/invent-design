@@ -83,6 +83,27 @@ export function AppShell({ children }: AppShellProps) {
           collapsed={collapsed}
           selectedKey={selectedKey}
           onItemClick={(key) => setSelectedKey(key)}
+          logoIcon={
+            <img
+              src="/images/logo.png"
+              alt="invent.ai"
+              style={{ width: 28, height: 28, objectFit: 'contain', display: 'block' }}
+            />
+          }
+          footerWordmark={
+            <img
+              src="/images/wordmark.png"
+              alt="invent.ai"
+              style={{ height: 18, objectFit: 'contain', display: 'block' }}
+            />
+          }
+          footerLogoIcon={
+            <img
+              src="/images/logo.png"
+              alt="invent.ai"
+              style={{ width: 24, height: 24, objectFit: 'contain', display: 'block' }}
+            />
+          }
         />
 
         {/* Collapse toggle — sits at the sidebar edge */}

@@ -8,7 +8,7 @@ import {
   faBell,
   faArrowsRotate,
   faChevronRight,
-  faRobot,
+  faWandSparkles,
   type IconDefinition,
 } from '@fortawesome/free-solid-svg-icons';
 import { themeColorsLight } from '@/tokens/colors';
@@ -459,7 +459,7 @@ export const CubTopNavigationBar: React.FC<CubTopNavigationBarProps> = ({
 
         {/* AI Notifications */}
         {showAiNotifications && (
-          <ActionButton icon={faRobot} variant="remi" title="AI Notifications" onClick={onAiNotificationsClick} />
+          <ActionButton icon={faWandSparkles} variant="remi" title="AI Notifications" onClick={onAiNotificationsClick} />
         )}
 
         {/* Notifications with badge */}
