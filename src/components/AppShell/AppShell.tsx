@@ -1,8 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { usePathname } from 'next/navigation';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faChevronLeft, faChevronRight, type IconDefinition } from '@fortawesome/free-solid-svg-icons';
+import { faChevronLeft, faChevronRight, faMoneyBillWave, type IconDefinition } from '@fortawesome/free-solid-svg-icons';
 import CubMenu, {
   DEFAULT_MENU_ITEMS,
   DEFAULT_SECONDARY_ITEMS,
@@ -54,19 +55,44 @@ function buildBreadcrumbPath(key: string, items: CubMenuItem[]): BreadcrumbNode[
 
 const ALL_ITEMS = [...DEFAULT_MENU_ITEMS, ...DEFAULT_SECONDARY_ITEMS];
 
+// ─── Route → breadcrumb + selectedKey map ────────────────────────────────────
+
+interface RouteConfig {
+  breadcrumbs: CubTopNavBreadcrumb[];
+  selectedKey: string;
+}
+
+const ROUTE_MAP: Record<string, RouteConfig> = {
+  '/mfp/bottom-up-planning': {
+    breadcrumbs: [
+      { key: 'bc-mfp', label: 'Merchandising Financial Plan', icon: faMoneyBillWave },
+      { key: 'bc-bup', label: 'Bottom-up Planning' },
+    ],
+    selectedKey: 'financial-item-1',
+  },
+};
+
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export function AppShell({ children }: AppShellProps) {
   const [collapsed, setCollapsed] = useState(false);
   const [selectedKey, setSelectedKey] = useState('home');
+  const pathname = usePathname();
 
-  const path = buildBreadcrumbPath(selectedKey, ALL_ITEMS);
-  const breadcrumbs: CubTopNavBreadcrumb[] | undefined = path?.map((node, index) => ({
+  // Sync selectedKey when navigating via URL
+  useEffect(() => {
+    const routeConfig = ROUTE_MAP[pathname];
+    if (routeConfig) setSelectedKey(routeConfig.selectedKey);
+  }, [pathname]);
+
+  const routeConfig = ROUTE_MAP[pathname];
+  const path = routeConfig ? null : buildBreadcrumbPath(selectedKey, ALL_ITEMS);
+  const breadcrumbs: CubTopNavBreadcrumb[] = routeConfig?.breadcrumbs ?? path?.map((node, index) => ({
     key: `bc-${index}`,
     label: node.label,
     // Icon only on the first (parent) segment
     icon: index === 0 ? node.icon : undefined,
-  }));
+  })) ?? [];
 
   return (
     <div

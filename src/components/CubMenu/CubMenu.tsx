@@ -171,7 +171,7 @@ export const DEFAULT_MENU_ITEMS: CubMenuItem[] = [
   {
     key: 'financial', label: 'Merchandising Financial Plan', icon: faMoneyBillWave,
     children: [
-      { key: 'financial-item-1', label: 'Menu Item 1' },
+      { key: 'financial-item-1', label: 'Bottom-up Planning' },
       { key: 'financial-item-2', label: 'Menu Item 2' },
       { key: 'financial-item-3', label: 'Menu Item 3' },
     ],

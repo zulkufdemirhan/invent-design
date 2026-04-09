@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import styles from './page.module.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
@@ -30,6 +31,7 @@ import { iconSize } from '@/tokens/icons';
 interface CardItem {
   label: string;
   expandable?: boolean;
+  href?: string;
 }
 
 interface ModuleCardData {
@@ -159,7 +161,7 @@ const ROW_3: ModuleCardData[] = [
     title: 'Merchandising Financial Plan',
     icon: faMoneyBillWave,
     items: [
-      { label: 'Product Planning', expandable: true },
+      { label: 'Bottom-up Planning', href: '/mfp/bottom-up-planning' },
       { label: 'Store Planning', expandable: true },
       { label: 'Buying Planning' },
       { label: 'Planning Calendar' },
@@ -185,9 +187,9 @@ const ROW_3: ModuleCardData[] = [
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
 
-const MenuItem: React.FC<CardItem> = ({ label, expandable }) => {
+const MenuItem: React.FC<CardItem> = ({ label, expandable, href }) => {
   const [hovered, setHovered] = useState(false);
-  return (
+  const inner = (
     <div
       role="menuitem"
       tabIndex={0}
@@ -237,6 +239,15 @@ const MenuItem: React.FC<CardItem> = ({ label, expandable }) => {
       )}
     </div>
   );
+
+  if (href) {
+    return (
+      <Link href={href} style={{ textDecoration: 'none', display: 'block', width: '100%' }}>
+        {inner}
+      </Link>
+    );
+  }
+  return inner;
 };
 
 const ModuleCard: React.FC<{ card: ModuleCardData }> = ({ card }) => (
