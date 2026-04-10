@@ -62,16 +62,6 @@ src/app/[module]/[screen]/
 └── [ScreenName]Types.ts        ← all TypeScript interfaces for this screen
 ```
 
-For every new component:
-
-```
-src/components/[ComponentName]/
-├── [ComponentName].tsx         ← render only (max 150 lines)
-├── [ComponentName].stories.tsx ← all states covered
-├── [ComponentName].types.ts    ← props interface
-└── index.ts                    ← barrel export
-```
-
 ---
 
 ## SOLID Enforcement

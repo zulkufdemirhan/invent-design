@@ -343,13 +343,14 @@ Check the Component Inventory above first. If it exists, always use it. Never re
 **2. Ant Design 6 component**
 Use if no custom DS equivalent exists. Always wrap in `ConfigProvider` with the theme from `src/theme/antdTheme.ts`. Never override Ant Design defaults with arbitrary values — use token props only.
 
-**3. New component written from DS tokens**
+**3. New UI element written from DS tokens**
 Only when neither (1) nor (2) fits the need.
+- Create the file inside `src/app/[module]/[screen]/`
+- Never create files inside `src/components/`
+  `src/components/` is managed manually by the team
 - Import from `@/tokens/` only — no external libraries
-- Follow file structure: `ComponentName/ComponentName.tsx`, `ComponentName.stories.tsx`, `index.ts`
-- Props interface named `ComponentNameProps`, named export only
-- Must include Storybook stories with `tags: ['autodocs']`
-- **Never install a new npm package** to satisfy a UI need that tokens + existing components can cover
+- No hard-coded values
+- Never install a new npm package
 
 ---
 

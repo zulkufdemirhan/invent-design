@@ -88,24 +88,18 @@ Use DS tokens to override Ant Design token props:
 <Table style={{ borderRadius: 8 }} />
 ```
 
-### Tier 3 — Write a New DS Component with Tokens
+### Tier 3 — New UI element within the screen
 
 Only when Tier 1 and Tier 2 are insufficient.
 
-**Requirements:**
-- No external npm packages
-- No values outside of tokens
-- Storybook story is mandatory
-  Exception: if Prototype Mode is active, the story
-  requirement is deferred. Add this comment to the file:
-  // TODO: Storybook story required before production
-
-```
-src/components/[NewComponent]/
-├── [NewComponent].tsx          ← named export, TypeScript interface
-├── [NewComponent].stories.tsx  ← tags: ['autodocs'], all states covered
-└── index.ts                    ← barrel export
-```
+Rules:
+- Create the file inside src/app/[module]/[screen]/
+  NOT inside src/components/
+- src/components/ is managed manually by the team —
+  never write files there
+- Use DS tokens only — no hard-coded values,
+  no external libraries
+- Named export only, proper TypeScript interface
 
 ---
 
