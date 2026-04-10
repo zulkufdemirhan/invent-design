@@ -141,6 +141,42 @@ Do not write any code without approval.
 
 ---
 
+## Lite Mode — Sufficient Context Fast-Path
+
+Not every request requires 16 questions. Before asking anything,
+score how much context the user already provided:
+
+### Minimum context needed (all 4 must be known or inferrable):
+1. **Module / domain** — which business area
+2. **Screen type** — dashboard, data entry, report, wizard, etc.
+3. **Primary data entity** — what is being shown / edited
+4. **User action** — read, edit, approve, export, etc.
+
+### Decision:
+
+**If all 4 are clear from the user's message:**
+→ Skip Step 3 (asking questions). Apply defaults for any remaining
+  unknowns. Go directly to Step 4 (Domain Summary) with an
+  "Assumptions" section listing what was inferred.
+
+**If 1–2 items are missing:**
+→ Ask only the missing items in a single short message (not the full
+  16-question template). Then proceed to Step 4.
+
+**If 3+ items are missing:**
+→ Run the full Step 2 → Step 3 flow as defined above.
+
+### Example — lite mode in action
+
+User says: *"Create a store transfer list screen for the allocation module.
+Table with status, SKU, quantity, origin and destination stores.
+Read-only with export."*
+
+All 4 are known: module=Allocation, type=list/table, entity=Store Transfer,
+action=read-only+export. Skip questions, go directly to Domain Summary.
+
+---
+
 ## Default Assumptions
 
 If the user does not respond or says "you decide", apply these defaults:

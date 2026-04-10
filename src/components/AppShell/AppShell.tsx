@@ -205,5 +205,3 @@ export function AppShell({ children }: AppShellProps) {
     </div>
   );
 }
-
-export default AppShell;

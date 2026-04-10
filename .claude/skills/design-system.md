@@ -66,26 +66,26 @@ Read the component's source file, verify the prop signature, then use it.
 
 If there is no match in Tier 1, use the latest version of Ant Design with our design tokens.
 
-```tsx
-// ✅ Always inside ConfigProvider
-import { ConfigProvider, Table, Form, Modal, Drawer, Select, DatePicker } from 'antd';
-import { antdTheme } from '@/theme/antdTheme';
+> **ConfigProvider is already applied globally** via `AntdRegistry` in `src/app/layout.tsx`.
+> It wraps the entire app with the theme from `src/theme/antdTheme.ts`.
+> **Do NOT add another `ConfigProvider`** in View files — it is already there.
+> Only use a nested `ConfigProvider` when you need a **local override** for a specific
+> component (e.g. a different color scheme inside a modal).
 
-<ConfigProvider theme={antdTheme}>
-  {/* Ant Design components here */}
-</ConfigProvider>
-```
-
-Use DS tokens to override Ant Design token props:
 ```tsx
-// ✅ Token-based override
-<Table
-  style={{ borderRadius: borderRadius.borderRadiusLG }}
-  ...
-/>
+// ✅ Just use Ant Design components — global ConfigProvider handles theming
+import { Table, Form, Modal, Drawer, Select, DatePicker } from 'antd';
+
+// ✅ Token-based style override when needed
+import { borderRadius } from '@/tokens/spacing';
+<Table style={{ borderRadius: borderRadius.borderRadiusLG }} ... />
 
 // ❌ Hard-coded override
 <Table style={{ borderRadius: 8 }} />
+
+// ❌ Redundant ConfigProvider — already global
+import { ConfigProvider } from 'antd';
+<ConfigProvider theme={antdTheme}><Table ... /></ConfigProvider>
 ```
 
 ### Tier 3 — New UI element within the screen
@@ -243,6 +243,9 @@ export default MyComponent;
 export const MyComponent: React.FC<MyComponentProps> = () => { ... }
 ```
 
+> **Exception:** Next.js `page.tsx` and `layout.tsx` files require
+> `export default`. This is the only allowed case.
+
 ### `any` Type
 
 ```tsx
@@ -327,7 +330,7 @@ When a violation is detected during code review, fix it without asking the user 
 | Missing loading state | Add Skeleton implementation |
 | Missing empty state | Add EmptyTable / Empty component |
 | Icon-only button missing ARIA | Add `aria-label` |
-| Missing ConfigProvider | Wrap the tree |
+| Redundant ConfigProvider in View | Remove it — global `AntdRegistry` already provides it |
 
 Correction message format:
 ```
@@ -340,9 +343,12 @@ Correction message format:
 
 ## 6. DS Token Quick Reference
 
+> Full token tables (values, scales, usage): see **CLAUDE.md → Design Tokens** section.
+> Do not duplicate the tables here. This section provides import paths only.
+
 ```ts
 // Color
-import { themeColorsLight, themeColorsDark, dataTableColorsLight, baseColorPalettes } from '@/tokens/colors';
+import { themeColorsLight, themeColorsDark, dataTableColorsLight, dataTableColorsDark, baseColorPalettes } from '@/tokens/colors';
 
 // Spacing
 import { borderRadius, padding, margin } from '@/tokens/spacing';
@@ -353,8 +359,77 @@ import { fontFamily, fontWeight, fontSize, lineHeightPx, textStyles } from '@/to
 // Icon
 import { iconSize, iconWeight } from '@/tokens/icons';
 
-// Theme
+// Theme (for component-level ConfigProvider overrides only)
 import { antdTheme } from '@/theme/antdTheme';
 ```
 
-Full token details: `.claude/CLAUDE.md` → **## Design Tokens** section.
+---
+
+## 7. Dark Mode
+
+### When to Apply
+- Only when the user explicitly requests dark mode support
+- Default output is light mode only
+
+### Implementation Pattern
+
+```tsx
+import { themeColorsLight, themeColorsDark, dataTableColorsLight, dataTableColorsDark } from '@/tokens/colors';
+
+// In the hook or context:
+type ThemeMode = 'light' | 'dark';
+
+const themeColors = {
+  light: themeColorsLight,
+  dark: themeColorsDark,
+};
+
+const dataTableColors = {
+  light: dataTableColorsLight,
+  dark: dataTableColorsDark,
+};
+
+// Usage in the View:
+const { mode } = useTheme(); // or accept as prop
+const colors = themeColors[mode];
+const tableColors = dataTableColors[mode];
+
+style={{ color: colors.colorText, background: colors.colorBgLayout }}
+```
+
+### Rules
+- Never reference `themeColorsLight` directly when dark mode is active —
+  always go through the mode-keyed object
+- Ant Design theme switching requires a `ConfigProvider` override at the
+  layout level — coordinate with `AntdRegistry` / `AppShell`
+- Data table colors must also switch — use `dataTableColors[mode]`
+
+---
+
+## 8. Responsive Behavior
+
+### Breakpoint Strategy
+
+The design system uses three breakpoints, aligned with `DataTableToolbar`:
+
+| Breakpoint | Width | Toolbar Prop |
+|------------|-------|-------------|
+| Desktop (large) | ≥ 1600 px | `'1600px and more'` |
+| Desktop (standard) | 1280–1599 px | `'1280px to 1600px'` |
+| Compact | 1024–1279 px | `'1024px to 1280 px'` |
+
+### How to Apply
+
+Screens are designed for **desktop-first** (≥ 1280 px).
+Mobile and tablet layouts are **not** in scope unless the user explicitly requests them.
+
+For responsive toolbar behavior, pass the appropriate `breakpoints` prop
+to `DataTableToolbar` based on the screen context:
+- Full-width pages → `'1600px and more'`
+- Pages with sidebar open → `'1280px to 1600px'`
+- Narrow panels or split views → `'1024px to 1280 px'`
+
+When building responsive layouts:
+- Use `flex-wrap` and `min-width` instead of media queries where possible
+- KPI cards should use `flex: 1; minWidth: 180px` to reflow naturally
+- Never hard-code widths for layout containers — use `flex` and `%`

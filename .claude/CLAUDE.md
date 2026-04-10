@@ -366,38 +366,46 @@ Skipping any step is not allowed, even for small changes.
 Every request — screen, component, feature, or revision —
 must pass through all applicable skills before any code is written.
 
-**STEP 1 — domain-analysis.md (ALWAYS)**
+**STEP 1 — domain-analysis.md (ALWAYS for new screens)**
 Read and apply `.claude/skills/domain-analysis.md`.
 Understand the intent. Gather missing context. Get approval.
 Do not proceed to Step 2 without an approved Domain Summary.
 
-**STEP 2 — screen-generation.md (ALWAYS)**
+**STEP 2 — screen-generation.md (ALWAYS for new screens)**
 Read and apply `.claude/skills/screen-generation.md`.
 Propose the screen plan. Get approval.
 Do not write any code without an approved Screen Plan.
 
-**STEP 3 — design-system.md (PASSIVE — runs on every output)**
+> **Fast-path for iterations:** When the change is scoped to an
+> already-approved screen (visual tweaks, adding/removing a column,
+> changing a token, fixing a bug, adding a filter), skip Steps 1–2
+> and go directly to **Phase 3 (Iteration)** of `screen-generation.md`.
+> The iteration rules in Phase 3 still apply — preserve prior decisions,
+> declare what changed.
+
+**STEP 3 — design-system.md (ENFORCED — applied on every output)**
 Read and apply `.claude/skills/design-system.md`.
 Enforce token usage and component hierarchy on all generated code.
 
-**STEP 4 — interaction-patterns.md (PASSIVE — runs on every output)**
+**STEP 4 — interaction-patterns.md (ENFORCED — applied on every output)**
 Read and apply `.claude/skills/interaction-patterns.md`.
 Add loading / empty / error / modal patterns automatically.
 Do not defer any pattern to a later step.
 
-**STEP 5 — navigation-and-routing.md (PASSIVE — runs on every output)**
+**STEP 5 — navigation-and-routing.md (ENFORCED — applied on every output)**
 Read and apply `.claude/skills/navigation-and-routing.md`.
-Apply URL structure and dirty form guard rules.
+Apply URL structure, route registration, and dirty form guard rules.
 
-**STEP 6 — code-quality.md (PASSIVE — runs on every output)**
+**STEP 6 — code-quality.md (ENFORCED — applied on every output)**
 Read and apply `.claude/skills/code-quality.md`.
 Enforce file size limits, SOLID principles, and role protocol.
 Split files automatically if limits are exceeded.
 
 **STEP 7 — prototype-mode.md (CONDITIONAL)**
 Read and apply `.claude/skills/prototype-mode.md`
-only if the user's request contains words such as
-"prototype", "demo", "mock", or "quick".
+only if the user explicitly requests prototype mode
+(e.g. "in prototype mode", "build a prototype").
+Normal use of words like "mock" or "quick" does **not** activate this mode.
 
 ---
 
@@ -473,3 +481,14 @@ Include:
 - Component name and file path
 - All props with types and default values
 - Use cases (when to use it, when not to)
+
+### Inventory Drift Check
+
+The Component Inventory above is a **manual snapshot**.
+Since `src/components/` is managed by the team (not by AI),
+this inventory can become stale if components are added,
+renamed, or removed outside of AI-assisted sessions.
+
+**Periodic verification:** Before relying on a component listed here,
+read its actual source file to confirm the prop signature is current.
+If a mismatch is found, update this inventory before proceeding.

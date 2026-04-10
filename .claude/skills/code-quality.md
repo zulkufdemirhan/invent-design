@@ -221,16 +221,24 @@ const SubmitButton = () => {
 
 ## Inline Function Rule
 
-Do not define functions inline in JSX. Extract all handlers.
+Do not define **logic** inline in JSX.
+Extract all multi-statement handlers into named functions.
+
+A single-expression arrow that passes an argument to a named handler is acceptable.
 
 ```tsx
-// ❌ Inline
+// ❌ Logic inline — forbidden
 <Button onClick={() => { setOpen(true); setSelected(row); }} label="Edit" />
 
-// ✅ Extracted
+// ✅ Logic extracted — handler is a named function
 const handleEditClick = (row: OrderRow) => {
   setOpen(true);
   setSelected(row);
 };
+
+// ✅ Thin arrow wrapper to pass an argument — acceptable
 <Button onClick={() => handleEditClick(row)} label="Edit" />
+
+// ✅ No argument needed — direct reference preferred
+<Button onClick={handleSave} label="Save" />
 ```

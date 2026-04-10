@@ -22,6 +22,8 @@ Every component that fetches data. No exceptions.
 ```tsx
 // KPI card placeholder using Ant Design Skeleton
 import { Skeleton } from 'antd';
+import { padding, borderRadius } from '@/tokens/spacing';
+import { themeColorsLight } from '@/tokens/colors';
 
 {isLoading ? (
   <div style={{ display: 'flex', gap: padding.paddingLG }}>
@@ -29,7 +31,8 @@ import { Skeleton } from 'antd';
       <div
         key={i}
         style={{
-          width: 220,
+          flex: 1,
+          minWidth: 180,
           padding: padding.paddingLG,
           background: themeColorsLight.colorBgContainer,
           borderRadius: borderRadius.borderRadiusLG,
@@ -48,12 +51,15 @@ import { Skeleton } from 'antd';
 ### DataTable Loading
 ```tsx
 // Row skeleton while the table is loading
+import { padding } from '@/tokens/spacing';
+import { dataTableColorsLight } from '@/tokens/colors';
+
 {isLoading ? (
   <div>
     {Array.from({ length: 8 }).map((_, i) => (
       <div key={i} style={{ display: 'flex', borderBottom: `1px solid ${dataTableColorsLight.borderColor}` }}>
         {columns.map((col) => (
-          <div key={col.key} style={{ width: col.width, padding: '8px 12px' }}>
+          <div key={col.key} style={{ width: col.width, padding: `${padding.paddingXS}px ${padding.paddingSM}px` }}>
             <Skeleton active title={{ width: '70%' }} paragraph={false} />
           </div>
         ))}
@@ -156,6 +162,8 @@ notification.success({
 
 ### Table Error State (Inline)
 ```tsx
+import { iconSize } from '@/tokens/icons';
+
 {hasError ? (
   <div
     style={{
@@ -168,7 +176,7 @@ notification.success({
   >
     <FontAwesomeIcon
       icon={faTriangleExclamation}
-      style={{ fontSize: 24, color: themeColorsLight.colorError }}
+      style={{ fontSize: iconSize.iconSizeXXL * 2, color: themeColorsLight.colorError }}
     />
     <span style={{ ...textStyles.base, color: themeColorsLight.colorTextSecondary }}>
       An error occurred while loading data.

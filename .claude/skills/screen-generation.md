@@ -286,6 +286,11 @@ Page root
 - **Never add KPI cards inside the white section** — KpiCards sit between FilterBar and the white section, on colorBgLayout.
 
 **Step 3 — page.tsx (Next.js server wrapper):**
+
+> **Exception:** `page.tsx` and `layout.tsx` files use `export default`
+> because Next.js App Router **requires** it. This is the only case
+> where default exports are allowed. All other files use named exports.
+
 ```tsx
 import { [ScreenName]View } from './[ScreenName]View';
 
