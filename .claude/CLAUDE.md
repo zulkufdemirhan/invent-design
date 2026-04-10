@@ -355,46 +355,75 @@ Only when neither (1) nor (2) fits the need.
 
 ## Generation Protocol
 
+⚠️ ALWAYS follow this order on every request. No exceptions.
+Skipping any step is not allowed, even for small changes.
+
+---
+
 ### Skill Execution Order
-Before any code generation, run the skills in this order:
 
-1. `.claude/skills/domain-analysis.md`
-   Understand the intent, gather context, get approval.
-   No code is written until this is complete.
+Every request — screen, component, feature, or revision —
+must pass through all applicable skills before any code is written.
 
-2. `.claude/skills/screen-generation.md`
-   Propose the screen plan, get approval, then generate.
+**STEP 1 — domain-analysis.md (ALWAYS)**
+Read and apply `.claude/skills/domain-analysis.md`.
+Understand the intent. Gather missing context. Get approval.
+Do not proceed to Step 2 without an approved Domain Summary.
 
-3. `.claude/skills/design-system.md`
-   Enforce tokens and component hierarchy on every output. (passive)
+**STEP 2 — screen-generation.md (ALWAYS)**
+Read and apply `.claude/skills/screen-generation.md`.
+Propose the screen plan. Get approval.
+Do not write any code without an approved Screen Plan.
 
-4. `.claude/skills/interaction-patterns.md`
-   Apply loading / empty / error / modal patterns automatically. (passive)
+**STEP 3 — design-system.md (PASSIVE — runs on every output)**
+Read and apply `.claude/skills/design-system.md`.
+Enforce token usage and component hierarchy on all generated code.
 
-5. `.claude/skills/navigation-and-routing.md`
-   Apply URL structure and dirty form guard rules.
+**STEP 4 — interaction-patterns.md (PASSIVE — runs on every output)**
+Read and apply `.claude/skills/interaction-patterns.md`.
+Add loading / empty / error / modal patterns automatically.
+Do not defer any pattern to a later step.
 
-6. `.claude/skills/prototype-mode.md`
-   Activate if the user signals prototype intent
-   ("prototype", "demo", "mock", "quick").
+**STEP 5 — navigation-and-routing.md (PASSIVE — runs on every output)**
+Read and apply `.claude/skills/navigation-and-routing.md`.
+Apply URL structure and dirty form guard rules.
 
-7. `.claude/skills/code-quality.md`
-   Enforce file size limits, SOLID principles,
-   and role protocol on every output. (passive)
+**STEP 6 — code-quality.md (PASSIVE — runs on every output)**
+Read and apply `.claude/skills/code-quality.md`.
+Enforce file size limits, SOLID principles, and role protocol.
+Split files automatically if limits are exceeded.
 
-Follow this sequence for every code generation task:
+**STEP 7 — prototype-mode.md (CONDITIONAL)**
+Read and apply `.claude/skills/prototype-mode.md`
+only if the user's request contains words such as
+"prototype", "demo", "mock", or "quick".
 
-1. **Read the relevant component source** before writing anything. Never guess prop signatures.
-2. **Check `src/theme/antdTheme.ts`** if the task involves ConfigProvider or theme tokens.
-3. **Map all colors, spacing, and typography** to token imports — never literals.
-4. **Implement all states**: loading skeleton, empty state, error state, success feedback.
-5. **Wire all interactions**: hover, focus, active, disabled on every interactive element.
-6. **Validate accessibility**: semantic HTML, ARIA labels on icon-only buttons, keyboard nav.
+---
+
+### Code Generation Rules
+
+After all applicable skills are applied, follow these rules:
+
+1. **Read the relevant component source** before writing anything.
+   Never guess prop signatures.
+2. **Check `src/theme/antdTheme.ts`** if the task involves
+   ConfigProvider or theme tokens.
+3. **Map all colors, spacing, and typography** to token imports.
+   Never use literals.
+4. **Implement all states**: loading skeleton, empty state,
+   error state, success feedback.
+5. **Wire all interactions**: hover, focus, active, disabled
+   on every interactive element.
+6. **Validate accessibility**: semantic HTML, ARIA labels
+   on icon-only buttons, keyboard nav.
 7. **Write the Storybook story** alongside the component
    (required for new components; deferred in Prototype Mode —
    add `// TODO: Storybook story required before production`).
 
-Import order:
+---
+
+### Import Order
+
 ```ts
 // 1. React (only if needed explicitly)
 import React from 'react';
