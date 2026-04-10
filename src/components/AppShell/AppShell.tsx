@@ -74,6 +74,7 @@ const ROUTE_MAP: Record<string, RouteConfig> = {
 
 /** Maps a menu leaf key → the pathname to push when the item is clicked. */
 const KEY_TO_ROUTE: Record<string, string> = {
+  'home': '/',
   'financial-item-1': '/mfp/bottom-up-planning',
 };
 
