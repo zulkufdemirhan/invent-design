@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronLeft, faChevronRight, faMoneyBillWave, type IconDefinition } from '@fortawesome/free-solid-svg-icons';
 import CubMenu, {
@@ -72,18 +72,30 @@ const ROUTE_MAP: Record<string, RouteConfig> = {
   },
 };
 
+/** Maps a menu leaf key → the pathname to push when the item is clicked. */
+const KEY_TO_ROUTE: Record<string, string> = {
+  'financial-item-1': '/mfp/bottom-up-planning',
+};
+
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export function AppShell({ children }: AppShellProps) {
   const [collapsed, setCollapsed] = useState(false);
   const [selectedKey, setSelectedKey] = useState('home');
   const pathname = usePathname();
+  const router = useRouter();
 
-  // Sync selectedKey when navigating via URL
+  // Sync selectedKey when navigating via URL (browser back/forward, direct link)
   useEffect(() => {
     const routeConfig = ROUTE_MAP[pathname];
     if (routeConfig) setSelectedKey(routeConfig.selectedKey);
   }, [pathname]);
+
+  const handleItemClick = (key: string) => {
+    setSelectedKey(key);
+    const route = KEY_TO_ROUTE[key];
+    if (route) router.push(route);
+  };
 
   const routeConfig = ROUTE_MAP[pathname];
   const path = routeConfig ? null : buildBreadcrumbPath(selectedKey, ALL_ITEMS);
@@ -108,7 +120,7 @@ export function AppShell({ children }: AppShellProps) {
         <CubMenu
           collapsed={collapsed}
           selectedKey={selectedKey}
-          onItemClick={(key) => setSelectedKey(key)}
+          onItemClick={handleItemClick}
           logoIcon={
             <img
               src="/images/logo.png"

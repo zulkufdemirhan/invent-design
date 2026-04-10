@@ -73,6 +73,26 @@ Is there any section you'd like to change?
 
 ## Phase 2 — Code Generation
 
+### AppShell Architecture — MUST READ BEFORE CODING
+
+This project uses a global shell. Before writing any code, understand the layer hierarchy:
+
+```
+src/app/layout.tsx
+  └── AntdRegistry          ← ConfigProvider (lightTheme) lives here globally
+        └── AppShell        ← CubMenu + CubTopNavigationBar live here globally
+              └── <main>    ← Your [ScreenName]View renders HERE as children
+```
+
+**Rules that follow from this:**
+- NEVER add `ConfigProvider`, `CubMenu`, or `CubTopNavigationBar` inside a View file.
+  They are already rendered globally. Adding them again creates duplicate shells.
+- The View file receives `height: 100%` from `<main>`. Use `display: flex; flex-direction: column; height: 100%` as its root.
+- Breadcrumbs and `selectedKey` for the new screen must be registered in
+  `src/components/AppShell/AppShell.tsx`:
+  1. Add the route to `ROUTE_MAP` (pathname → breadcrumbs + selectedKey)
+  2. Add the menu key to `KEY_TO_ROUTE` (menu key → pathname)
+
 ### Pre-flight Checks (Run Before Every Generation)
 
 Before writing any code, verify:
@@ -80,8 +100,8 @@ Before writing any code, verify:
 ```
 [ ] Domain Summary approved
 [ ] Screen Plan approved
+[ ] src/components/AppShell/AppShell.tsx read — understand ROUTE_MAP and KEY_TO_ROUTE
 [ ] Existing page file read (if revision)
-[ ] src/theme/antdTheme.ts read (if ConfigProvider is needed)
 [ ] Source file of every DS component to be used has been read
 ```
 
@@ -90,8 +110,8 @@ Before writing any code, verify:
 Produce parts in this sequence — complete each before moving to the next:
 
 ```
-1. Page Shell
-   └── layout wrapper (CubMenu + CubTopNavigationBar + content area)
+1. AppShell Registration
+   └── Add route to ROUTE_MAP + menu key to KEY_TO_ROUTE in AppShell.tsx
 
 2. KPI Bar (if applicable)
    └── KpiCard array, state and container props configured
@@ -163,39 +183,115 @@ const data: any = ...
 
 ### Template — Page Shell
 
+> ⚠️ DO NOT add ConfigProvider, CubMenu, or CubTopNavigationBar.
+> They are provided globally by AppShell + AntdRegistry.
+> This View renders as the `children` inside AppShell's `<main>`.
+
+**Step 1 — Register in AppShell.tsx:**
+```ts
+// ROUTE_MAP  →  pathname to breadcrumbs + selectedKey
+'/[module]/[screen]': {
+  breadcrumbs: [
+    { key: 'bc-module', label: '[Module Label]', icon: fa[Icon] },
+    { key: 'bc-screen', label: '[Screen Label]' },
+  ],
+  selectedKey: '[menu-item-key]',
+},
+
+// KEY_TO_ROUTE  →  menu key to pathname (enables click-to-navigate)
+'[menu-item-key]': '/[module]/[screen]',
+```
+
+**Step 2 — View template (content only):**
 ```tsx
 'use client';
 
-import { ConfigProvider } from 'antd';
-import { CubMenu, DEFAULT_MENU_ITEMS, DEFAULT_SECONDARY_ITEMS } from '@/components/CubMenu';
-import { CubTopNavigationBar } from '@/components/CubTopNavigationBar';
-import { antdTheme } from '@/theme/antdTheme';
 import { themeColorsLight } from '@/tokens/colors';
+import { padding as paddingTokens, margin as marginTokens } from '@/tokens/spacing';
+
+// ConfigProvider, CubMenu, CubTopNavigationBar → already in AppShell. Do NOT import.
 
 export const [ScreenName]View: React.FC = () => {
   return (
-    <ConfigProvider theme={antdTheme}>
-      <div style={{ display: 'flex', height: '100vh', background: themeColorsLight.colorBgLayout }}>
-        <CubMenu
-          collapsed={false}
-          selectedKey="[nav-key]"
-          items={DEFAULT_MENU_ITEMS}
-          secondaryItems={DEFAULT_SECONDARY_ITEMS}
-        />
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-          <CubTopNavigationBar
-            breadcrumbs={[{ key: 'b1', label: '[Module]' }, { key: 'b2', label: '[Screen]' }]}
-            notificationCount={0}
-            userInitials="ZD"
-          />
-          <main style={{ flex: 1, overflow: 'auto', padding: 24 }}>
-            {/* content */}
-          </main>
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', background: themeColorsLight.colorBgLayout }}>
+      {/* FilterBar — sits above the white table section, layout background */}
+      {/* <FilterBar ... /> */}
+
+      {/* DataTableSection — white container that wraps Toolbar + Grid + Pagination */}
+      <div
+        style={{
+          flex: 1,
+          display: 'flex',
+          flexDirection: 'column',
+          overflow: 'hidden',
+          margin: `${marginTokens.marginXXS}px ${marginTokens.marginSM}px`,
+          background: themeColorsLight.colorBgContainer,
+          borderRadius: 0,
+        }}
+      >
+        {/* Toolbar — fixed height, no gap below */}
+        {/* <DataTableToolbar ... /> */}
+
+        {/* Grid area — fills all remaining height, scrollable horizontally */}
+        <div style={{ flex: 1, overflow: 'hidden', overflowX: 'auto', display: 'flex', flexDirection: 'column' }}>
+          {/* DataSheet columns render here */}
         </div>
+
+        {/* Pagination — fixed height at the bottom of the white section */}
+        {/* <Pagination ... /> */}
       </div>
-    </ConfigProvider>
+    </div>
   );
 };
+```
+
+### DataTable Screen Layout — Pixel Rules (from Figma)
+
+This is the **canonical layout** for every screen that contains a DataTableToolbar + data grid.
+Never deviate from this structure. It is derived from the Figma spec.
+
+```
+Page root
+  background: colorBgLayout
+  display: flex | flex-direction: column | height: 100%
+  │
+  ├── [FilterBar]  ← optional, sits on colorBgLayout background
+  │
+  └── DataTableSection  ← white container
+        margin: 4px 12px (paddingXXS top/bottom, paddingSM left/right)
+        background: colorBgContainer
+        display: flex | flex-direction: column
+        flex: 1 | overflow: hidden
+        │
+        ├── DataTableToolbar  ← height 48px (8px vertical padding + 32px buttons)
+        │     padding: '8px 0'  ← already built into the component
+        │     NO bottom margin. Grid starts immediately below.
+        │
+        ├── Grid area  ← fills all remaining space
+        │     flex: 1 | overflow: hidden | overflowX: auto
+        │     DataSheet columns render inside here as a flex row
+        │
+        └── Pagination  ← height 48px, shrinks to fit
+              display: flex | align-items: center
+              padding: 8px 0
+              border-top: 1px solid colorBorderSecondary
+```
+
+**Critical rules:**
+- `DataTableToolbar` and the grid area have **zero gap between them** — never add margin/gap between them.
+- The grid area must have `flex: 1` so it fills remaining height after toolbar and before pagination.
+- The white section uses `overflow: hidden` — scrolling only happens inside the grid area.
+- `margin: 4px 12px` on the white section creates the colorBgLayout gutter visible around the table.
+- **Never wrap DataTableToolbar in an extra div with padding** — the component already has `padding: '8px 0'` baked in.
+- **Never add KPI cards inside the white section** — KpiCards sit between FilterBar and the white section, on colorBgLayout.
+
+**Step 3 — page.tsx (Next.js server wrapper):**
+```tsx
+import { [ScreenName]View } from './[ScreenName]View';
+
+export default function [ScreenName]Page() {
+  return <[ScreenName]View />;
+}
 ```
 
 ### Realistic Data
@@ -255,7 +351,8 @@ I'd recommend updating and re-approving the Screen Plan — shall I continue?"
 Verify before delivering code:
 
 ```
-[ ] ConfigProvider wraps the tree
+[ ] AppShell.tsx updated — ROUTE_MAP + KEY_TO_ROUTE entries added
+[ ] View does NOT contain ConfigProvider, CubMenu, or CubTopNavigationBar
 [ ] All colors come from tokens
 [ ] All spacing values come from tokens
 [ ] Font size / weight come from tokens
@@ -264,6 +361,9 @@ Verify before delivering code:
 [ ] Empty state present (message + icon + optional CTA)
 [ ] Error state present (toast or inline)
 [ ] All interactive elements have hover / focus / disabled states
+[ ] Tables: Toolbar + Grid + Pagination are inside a single white DataTableSection (colorBgContainer), with margin 4px 12px from the page edge
+[ ] Grid area has flex:1 + overflow:hidden — not the page root
+[ ] Zero gap between DataTableToolbar and grid (no margin between them)
 [ ] Tables have toolbar + pagination
 [ ] Forms have validation + submit feedback
 [ ] Modals close on Escape, focus trap active
