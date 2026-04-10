@@ -55,12 +55,27 @@ For every new screen, use this structure. No exceptions.
 
 ```
 src/app/[module]/[screen]/
-├── page.tsx                    ← Next.js Server Component wrapper only
-├── [ScreenName]View.tsx        ← layout + render only (max 300 lines)
-├── use[ScreenName]Logic.ts     ← all state, handlers, API calls
-├── [ScreenName]Columns.tsx     ← table column definitions (if table exists)
-└── [ScreenName]Types.ts        ← all TypeScript interfaces for this screen
+├── page.tsx                        ← Next.js Server Component wrapper only
+├── [ScreenName]View.tsx            ← layout + render only (max 300 lines)
+├── use[ScreenName]Logic.ts         ← all state, handlers, API calls
+├── [ScreenName]Toolbar.tsx         ← toolbar (if screen has one)
+├── [ScreenName]Columns.tsx         ← table column definitions (if table exists)
+├── [ScreenName]Types.ts            ← all TypeScript interfaces for this screen
+├── [ScreenName]Data.ts             ← mock / sample data (if needed)
+└── [ScreenName]Context.tsx         ← React context (if prop drilling risk exists)
 ```
+
+#### Placement Rule — src/app vs src/components
+
+Before creating any file, ask:
+"Will this file be used by more than one screen or module?"
+
+YES → it is a shared DS component, already exists in src/components/
+      use it, do not recreate it
+NO  → place in src/app/[module]/[screen]/
+
+Never create new files inside src/components/.
+src/components/ is managed manually by the team.
 
 ---
 
@@ -172,6 +187,11 @@ Before delivering any code, verify:
 [ ] No component defined inside another component
 [ ] Named exports only — no default exports
 [ ] No `any` types
+[ ] All generated files are in src/app/[module]/[screen]/
+    Nothing was created inside src/components/
+[ ] CubMenu sidebar link is wired and selectedKey is set
+[ ] CubTopNavigationBar tabs wired (or showTabs={false})
+[ ] URL params passed correctly from page.tsx to View
 ```
 
 ---

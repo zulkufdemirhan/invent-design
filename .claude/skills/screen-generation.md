@@ -127,13 +127,9 @@ src/app/[module]/[screen]/
 └── [ScreenName]View.tsx  ← Client Component (all UI lives here)
 ```
 
-For a new component:
-```
-src/components/[ComponentName]/
-├── [ComponentName].tsx
-├── [ComponentName].stories.tsx
-└── index.ts
-```
+> Note: Never create files inside src/components/.
+> src/components/ is managed manually by the team.
+> All generated files go into src/app/[module]/[screen]/.
 
 ### Code Rules
 
