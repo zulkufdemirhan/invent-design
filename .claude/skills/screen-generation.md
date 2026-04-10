@@ -25,10 +25,19 @@ Do not write code. Write a decision document.
 ```
 ## Screen Plan: [Screen Name]
 
+### Screen Type
+[DataTable / Dashboard / Form / Detail / Wizard]
+(determines which layout template from Phase 2 to use)
+
 ### Layout
 - Shell: CubMenu (collapsed: false) + CubTopNavigationBar
-- Main area: [Layout type — single panel / split / full-width grid]
+- Base pattern: [DataTable / Dashboard / Form / Detail / Wizard / Hybrid]
 - Page width: [Fixed / Fluid]
+
+### Layout Rationale
+This screen serves [user role] who needs to [primary task].
+The dominant data is [type], with [frequency] interactions.
+Layout: [base pattern] adapted with [specific changes] because [reason].
 
 ### Breadcrumb
 [Module] › [Sub-module] › [Screen name]
@@ -38,23 +47,35 @@ Tab 1: [Name] | Tab 2: [Name] | ...
 Active: Tab 1
 
 ### Regions (top to bottom)
-1. **KPI Bar** — [How many cards, which metrics]
+1. **KPI Bar** — [How many cards, which metrics, container style]
 2. **Filter Bar** — [Quick Filters / Regular Filters, how many filters]
-3. **Toolbar** — [Editable / None Editable, which actions]
-4. **DataTable** — [How many columns, which cell types, pagination]
-5. **Modal / Drawer** — [Which action triggers it, what it contains]
+3. **Toolbar** — [Editable / None Editable, which actions, primary action position]
+4. **DataTable** — [How many columns, which cell types, column alignment, pagination]
+5. **Form** — [How many sections, field count per section, validation rules]
+6. **Modal / Drawer** — [Which action triggers it, width, what it contains]
+
+### Visual Hierarchy
+- Primary action: [Button label, position]
+- Secondary actions: [Button labels]
+- Information density: [Compact / Normal / Spacious]
 
 ### Navigation Flow
 [Previous screen] → this screen → [Next screen]
 Triggering action: [e.g. clicking a table row]
+Row click behavior: [Navigate / Drawer / Modal]
 
 ### State Plan
 | State | Behavior |
 |-------|----------|
-| Loading | [Skeleton or spinner, which region] |
-| Empty | [Message, icon, CTA] |
+| Loading | [Skeleton, which regions] |
+| Empty | [Message with entity name, icon, CTA] |
 | Error | [Toast / inline, retry available] |
-| Success | [Toast message] |
+| Success | [Toast message with entity name] |
+
+### Consistency Notes
+[If this is the 2nd+ screen in the product, list which patterns
+from previous screens must be maintained — row click behavior,
+modal vs drawer, filter placement, etc.]
 
 ### Open Decisions
 - [Items requiring a design decision — ask the user]
@@ -245,10 +266,34 @@ export const [ScreenName]View: React.FC = () => {
 };
 ```
 
-### DataTable Screen Layout — Pixel Rules (from Figma)
+### Layout Design Philosophy
 
-This is the **canonical layout** for every screen that contains a DataTableToolbar + data grid.
-Never deviate from this structure. It is derived from the Figma spec.
+> **Templates are reference patterns — not blueprints.**
+>
+> The layouts below document proven patterns from the Figma spec.
+> They exist so you understand the *structural vocabulary* of this design system.
+> They are **not** meant to be copied verbatim for every screen.
+>
+> **The correct approach for every screen:**
+> 1. Understand the domain need from the approved Domain Summary
+> 2. Determine which layout pattern (or combination) best serves
+>    the user's primary task and data structure
+> 3. **Adapt** the pattern — add, remove, or rearrange regions
+>    based on what the screen actually needs
+> 4. Justify layout decisions in the Screen Plan
+>
+> A dashboard that only has KPIs and a chart does not need a FilterBar.
+> A form screen does not need a DataTableToolbar.
+> A detail page might combine a header card with a tabbed table below.
+> **Let the domain drive the layout, not the template.**
+
+---
+
+### DataTable Screen Layout — Reference Pattern
+
+This is the **reference layout** for screens that contain a DataTableToolbar + data grid.
+It is derived from the Figma spec. Adapt as needed — but preserve the structural
+relationships (toolbar–grid–pagination coupling, spacing tokens, overflow rules).
 
 ```
 Page root
@@ -277,13 +322,152 @@ Page root
               border-top: 1px solid colorBorderSecondary
 ```
 
-**Critical rules:**
+**Structural rules (apply when using this pattern):**
 - `DataTableToolbar` and the grid area have **zero gap between them** — never add margin/gap between them.
 - The grid area must have `flex: 1` so it fills remaining height after toolbar and before pagination.
 - The white section uses `overflow: hidden` — scrolling only happens inside the grid area.
 - `margin: 4px 12px` on the white section creates the colorBgLayout gutter visible around the table.
 - **Never wrap DataTableToolbar in an extra div with padding** — the component already has `padding: '8px 0'` baked in.
 - **Never add KPI cards inside the white section** — KpiCards sit between FilterBar and the white section, on colorBgLayout.
+
+> These rules protect the Figma-spec structural relationships.
+> They apply whenever you use the DataTable pattern — even if
+> the overall screen is a hybrid layout.
+
+### Dashboard Screen Layout — Reference Pattern
+
+For screens focused on KPI metrics, summary panels, and optional charts.
+Adapt regions based on the domain — not every dashboard needs all sections.
+
+```
+Page root
+  background: colorBgLayout
+  display: flex | flex-direction: column | height: 100%
+  overflow: auto                          ← dashboard scrolls as a whole page
+  padding: marginSM (12px)
+  gap: marginXXS (4px)
+  │
+  ├── KPI Row                             ← flex row, wraps on narrow screens
+  │     display: flex | gap: paddingLG (24px) | flex-wrap: wrap
+  │     Each KpiCard: flex: 1 | minWidth: 220px
+  │
+  ├── [FilterBar]                         ← optional, if dashboard is filterable
+  │
+  ├── Content Grid                        ← charts, summary tables, cards
+  │     display: grid
+  │     grid-template-columns: repeat(auto-fit, minmax(400px, 1fr))
+  │     gap: paddingLG (24px)
+  │     │
+  │     └── Card Panel                    ← each chart/summary block
+  │           background: colorBgContainer
+  │           borderRadius: borderRadiusLG
+  │           padding: paddingLG
+  │           border: 1px solid colorBorderSecondary
+  │
+  └── [Optional secondary table]          ← uses DataTable layout inside a card
+```
+
+### Form Screen Layout — Reference Pattern
+
+For create/edit screens with form fields. Adapt field grouping and
+section count to the entity complexity.
+
+```
+Page root
+  background: colorBgLayout
+  display: flex | flex-direction: column | height: 100%
+  │
+  └── Form Container
+        background: colorBgContainer
+        margin: marginXXS marginSM (4px 12px)
+        padding: paddingLG (24px)
+        borderRadius: 0
+        flex: 1 | overflow: auto
+        │
+        └── Form Content
+              max-width: 720px             ← readability constraint
+              │
+              ├── Section Title            ← textStyles.heading5, colorText
+              │     margin-bottom: paddingSM (12px)
+              │
+              ├── Form Fields              ← Ant Form, layout="vertical"
+              │     gap: padding (16px) between fields
+              │     gap: paddingLG (24px) between sections
+              │
+              └── Action Bar               ← sticky at bottom or inline
+                    display: flex | justify-content: flex-end
+                    gap: paddingXS (8px)
+                    padding-top: paddingLG (24px)
+                    border-top: 1px solid colorBorderSecondary
+                    [Cancel (default)] [Save (primary)]
+```
+
+### Detail / View Screen Layout — Reference Pattern
+
+For entity detail pages with read-only data and optional edit.
+Structure depends on entity complexity — simple entities may not need tabs.
+
+```
+Page root
+  background: colorBgLayout
+  display: flex | flex-direction: column | height: 100%
+  overflow: auto
+  │
+  ├── Header Section
+  │     background: colorBgContainer
+  │     margin: marginXXS marginSM (4px 12px)
+  │     padding: paddingLG (24px)
+  │     display: flex | justify-content: space-between | align-items: center
+  │     │
+  │     ├── Entity title + status badge
+  │     └── Action buttons (Edit, Delete, etc.)
+  │
+  └── Content Section
+        background: colorBgContainer
+        margin: 0 marginSM marginXXS (0 12px 4px)
+        padding: 0
+        flex: 1
+        │
+        ├── Tab Bar (if multiple sections)
+        │     Tabs within the content section, not in top nav
+        │
+        └── Tab Content
+              padding: paddingLG (24px)
+              Key-value pairs, related tables, or sub-forms
+```
+
+### Wizard / Multi-Step Screen Layout — Reference Pattern
+
+For multi-step flows (create wizard, onboarding, setup).
+Step count and content type per step depend on the domain process.
+
+```
+Page root
+  background: colorBgLayout
+  display: flex | flex-direction: column | height: 100%
+  │
+  └── Wizard Container
+        background: colorBgContainer
+        margin: marginXXS marginSM (4px 12px)
+        flex: 1 | display: flex | flex-direction: column
+        │
+        ├── Step Indicator                 ← Ant Steps component
+        │     padding: paddingLG (24px) paddingLG 0
+        │     border-bottom: 1px solid colorBorderSecondary
+        │
+        ├── Step Content                   ← flex: 1, overflow: auto
+        │     padding: paddingLG (24px)
+        │     max-width: 720px (for form steps)
+        │     width: 100% (for review/summary steps)
+        │
+        └── Footer Bar                     ← sticky bottom
+              display: flex | justify-content: space-between
+              padding: paddingSM paddingLG (12px 24px)
+              border-top: 1px solid colorBorderSecondary
+              [Cancel]          [← Previous]  [Next → / Confirm]
+```
+
+---
 
 **Step 3 — page.tsx (Next.js server wrapper):**
 

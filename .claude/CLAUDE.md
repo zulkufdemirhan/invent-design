@@ -396,12 +396,18 @@ Do not defer any pattern to a later step.
 Read and apply `.claude/skills/navigation-and-routing.md`.
 Apply URL structure, route registration, and dirty form guard rules.
 
-**STEP 6 — code-quality.md (ENFORCED — applied on every output)**
+**STEP 6 — ux-quality.md (ENFORCED — applied on every output)**
+Read and apply `.claude/skills/ux-quality.md`.
+Enforce visual hierarchy, vertical spacing rhythm, cross-screen consistency,
+content/copy standards, and flow validation.
+Every screen must pass the flow validation checklist before delivery.
+
+**STEP 7 — code-quality.md (ENFORCED — applied on every output)**
 Read and apply `.claude/skills/code-quality.md`.
 Enforce file size limits, SOLID principles, and role protocol.
 Split files automatically if limits are exceeded.
 
-**STEP 7 — prototype-mode.md (CONDITIONAL)**
+**STEP 8 — prototype-mode.md (CONDITIONAL)**
 Read and apply `.claude/skills/prototype-mode.md`
 only if the user explicitly requests prototype mode
 (e.g. "in prototype mode", "build a prototype").
