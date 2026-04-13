@@ -7,7 +7,7 @@
 You operate at the combined level of **Staff UX/UI Designer**, **UX Engineer**, and **Front-end Engineer** for the **Invent Design System** project.
 
 Every screen, component, or feature you produce must be:
-- Pixel-faithful to Figma specs — not wireframes
+- Component and token-first — Storybook components and design tokens are the source of truth, not Figma
 - Built with tokens exclusively — zero hard-coded values
 - Functionally complete — all states (loading, empty, error, disabled, success) implemented
 - Accessible — ARIA, keyboard navigation, focus management, contrast ≥ 4.5:1
@@ -265,6 +265,19 @@ Horizontal filter strip with two modes.
 
 ---
 
+### DataTableContainer — `src/components/DataTable/DataTableContainer.tsx`
+
+Visual wrapper for all DataSheet cell components. Provides the 1px border, 6px radius, and white background.
+
+| Prop | Type | Default |
+|------|------|---------|
+| `children` | `ReactNode` | — |
+| `height` | `string \| number` | `'100%'` |
+
+**Use cases:** always wraps DataSheet cells inside ListPageLayout's children slot. Use a fixed height (e.g. `400`) when embedding outside a layout slot.
+
+---
+
 ### DataTableToolbar — `src/components/DataTable/DataTableToolbar.tsx`
 
 Toolbar above data tables. Adapts to edit mode and viewport breakpoint.
@@ -477,145 +490,83 @@ That's it. Sidebar active state, open submenu, breadcrumbs, URL sync — all aut
 
 ## Generation Protocol
 
-⚠️ ALWAYS follow this order on every request. No exceptions.
-Skipping any step is not allowed, even for small changes.
+Every request follows this path. All four skills apply — no exceptions.
 
 ---
 
-### Skill Execution Order
+### Skills
 
-Every request — screen, component, feature, or revision —
-must pass through all applicable skills before any code is written.
+| Skill | File | When |
+|-------|------|------|
+| **Screen Generation** | `.claude/skills/screen-generation.md` | Every new screen and every iteration |
+| **Component Rules** | `.claude/skills/component-rules.md` | Every time a component choice must be made |
+| **Navigation & Routing** | `.claude/skills/navigation-and-routing.md` | Every time a page or route is touched |
+| **Code Quality** | `.claude/skills/code-quality.md` | Every code output |
 
-**STEP 1 — domain-analysis.md (ALWAYS for new screens)**
-Read and apply `.claude/skills/domain-analysis.md`.
-Understand the intent. Gather missing context. Get approval.
-Do not proceed to Step 2 without an approved Domain Summary.
+### Decision path
 
-**STEP 2 — screen-generation.md (ALWAYS for new screens)**
-Read and apply `.claude/skills/screen-generation.md`.
-Propose the screen plan. Get approval.
-Do not write any code without an approved Screen Plan.
-
-> **Fast-path for iterations:** When the change is scoped to an
-> already-approved screen (visual tweaks, adding/removing a column,
-> changing a token, fixing a bug, adding a filter), skip Steps 1–2
-> and go directly to **Phase 3 (Iteration)** of `screen-generation.md`.
-> The iteration rules in Phase 3 still apply — preserve prior decisions,
-> declare what changed.
-
-**STEP 3 — design-system.md (ENFORCED — applied on every output)**
-Read and apply `.claude/skills/design-system.md`.
-Enforce token usage and component hierarchy on all generated code.
-
-**STEP 4 — interaction-patterns.md (ENFORCED — applied on every output)**
-Read and apply `.claude/skills/interaction-patterns.md`.
-Add loading / empty / error / modal patterns automatically.
-Do not defer any pattern to a later step.
-
-**STEP 5 — navigation-and-routing.md (ENFORCED — applied on every output)**
-Read and apply `.claude/skills/navigation-and-routing.md`.
-Apply URL structure, route registration, and dirty form guard rules.
-
-**STEP 6 — ux-quality.md (ENFORCED — applied on every output)**
-Read and apply `.claude/skills/ux-quality.md`.
-Enforce visual hierarchy, vertical spacing rhythm, cross-screen consistency,
-content/copy standards, and flow validation.
-Every screen must pass the flow validation checklist before delivery.
-
-**STEP 7 — code-quality.md (ENFORCED — applied on every output)**
-Read and apply `.claude/skills/code-quality.md`.
-Enforce file size limits, SOLID principles, and role protocol.
-Split files automatically if limits are exceeded.
-
-**STEP 8 — prototype-mode.md (CONDITIONAL)**
-Read and apply `.claude/skills/prototype-mode.md`
-only if the user explicitly requests prototype mode
-(e.g. "in prototype mode", "build a prototype").
-Normal use of words like "mock" or "quick" does **not** activate this mode.
-
----
-
-### Code Generation Rules
-
-After all applicable skills are applied, follow these rules:
-
-1. **Read the relevant component source** before writing anything.
-   Never guess prop signatures.
-2. **Check `src/theme/antdTheme.ts`** if the task involves
-   ConfigProvider or theme tokens.
-3. **Map all colors, spacing, and typography** to token imports.
-   Never use literals.
-4. **Implement all states**: loading skeleton, empty state,
-   error state, success feedback.
-5. **Wire all interactions**: hover, focus, active, disabled
-   on every interactive element.
-6. **Validate accessibility**: semantic HTML, ARIA labels
-   on icon-only buttons, keyboard nav.
-7. **Write the Storybook story** alongside the component
-   (required for new components; deferred in Prototype Mode —
-   add `// TODO: Storybook story required before production`).
-
----
-
-### Import Order
-
-```ts
-// 1. React (only if needed explicitly)
-import React from 'react';
-// 2. External libraries
-import { Button } from 'antd';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-// 3. Internal components
-import { KpiCard } from '@/components/KpiCard';
-// 4. Tokens / theme / lib
-import { themeColorsLight } from '@/tokens/colors';
-import { padding, borderRadius } from '@/tokens/spacing';
-import { textStyles } from '@/tokens/typography';
+```
+Request received
+  │
+  ├─ New screen?
+  │    └─ screen-generation.md → Steps 1–6
+  │
+  ├─ Iteration on existing screen?
+  │    └─ screen-generation.md → Iteration Fast-Path
+  │
+  ├─ Component selection needed?
+  │    └─ component-rules.md → find the right variant
+  │
+  ├─ Route or navigation touched?
+  │    └─ navigation-and-routing.md → register in src/config/navigation.ts
+  │
+  └─ Any code output?
+       └─ code-quality.md → TypeScript, file limits, naming, imports
 ```
 
 ---
 
-## Iteration Rules
+## Hard Constraints
 
-- **Never re-scan or re-read the Figma design system file.** The global CLAUDE.md is the reference.
-- **When iterating on an existing screen**, preserve all prior decisions
-  per `screen-generation.md` Phase 3 rules. Apply only the requested change.
-- **Never hard-code a hex color, px value, or font size.** Use tokens.
-- **Never add a new dependency** for UI. Tokens + existing components are sufficient.
-- **Never produce placeholder layouts.** All data must be domain-relevant and realistic.
-- **Never generate default exports.** All exports are named.
-- **Never exceed file size limits.** Split automatically
-  per `code-quality.md` before delivering output.
-- **Never define a component inside another component.**
-- **Never prop drill deeper than 2 levels.**
-  Extract a hook or context instead.
-- **Never use `any`.** Define proper TypeScript interfaces.
-- When iterating on an existing component, read its current source before suggesting changes.
-- When a Figma URL is provided, use `get_design_context` first, then adapt output to this stack.
-- For charts and data visualization, use Highcharts if it is
-  already installed. If not, check with the user before
-  adding a new dependency.
+These rules are never negotiable, regardless of request type or urgency.
+
+**Components**
+- Never use raw HTML if a DS component exists
+- Never re-implement a component that exists in `src/components/`
+- Never create files inside `src/components/` — that directory is team-managed
+- Never install a new npm package for UI
+
+**Layout**
+- Never create a new layout — use `ListPageLayout`, `DashboardPageLayout`, or `DetailPageLayout`
+- Never place shell components (`CubMenu`, `CubTopNavigationBar`) inside a page
+- Never hard-code breadcrumbs or sidebar state — AppShell derives these automatically
+
+**Code**
+- Never use hardcoded hex colors, pixel values, or font sizes — tokens only
+- Never use `any` in TypeScript
+- Never use `export default`
+- Never define a component inside another component
+- Never prop drill deeper than 2 levels — extract a hook or context
+
+**Data**
+- Never produce placeholder content — all data must be domain-relevant and realistic
+- Never add a new dependency for UI — DS tokens + existing components are sufficient
 
 ---
 
 ## Maintenance
 
-When a new component is added to `src/components/`,
-update the Component Inventory section in this file.
+When a new component is added to `src/components/`, update the Component Inventory section above.
 
 Include:
 - Component name and file path
 - All props with types and default values
-- Use cases (when to use it, when not to)
+- Use cases (when to use, when not to)
+
+Also update `component-rules.md` with the decision rules for the new component.
 
 ### Inventory Drift Check
 
-The Component Inventory above is a **manual snapshot**.
-Since `src/components/` is managed by the team (not by AI),
-this inventory can become stale if components are added,
-renamed, or removed outside of AI-assisted sessions.
-
-**Periodic verification:** Before relying on a component listed here,
-read its actual source file to confirm the prop signature is current.
+The Component Inventory is a **manual snapshot** — `src/components/` is managed by the team, not AI.
+Before relying on any listed component, read its actual source file to confirm the prop signature is current.
 If a mismatch is found, update this inventory before proceeding.

@@ -1,3 +1,6 @@
+export { DataTableContainer } from './DataTableContainer';
+export type { DataTableContainerProps } from './DataTableContainer';
+
 export { DataSheetTitle, default as DataSheetTitleDefault } from './DataSheetTitle';
 export type { DataSheetTitleProps, DataSheetTitleType, DataSheetTitleState } from './DataSheetTitle';
 
