@@ -354,6 +354,127 @@ Only when neither (1) nor (2) fits the need.
 
 ---
 
+## Shell & Layout Architecture
+
+The application is structured in three fixed layers. Every screen must fit within this hierarchy — never bypass or re-implement any layer.
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  LAYER 1 — Shell  (AppShell.tsx, always present)            │
+│  CubMenu (sidebar 56–250 px) + CubTopNavigationBar (52 px)  │
+│  Routing · breadcrumbs · sidebar state — all automatic      │
+└────────────────────────┬────────────────────────────────────┘
+                         │
+┌────────────────────────▼────────────────────────────────────┐
+│  LAYER 2 — Page Layout  (src/layouts/)                      │
+│  ListPageLayout · DashboardPageLayout · DetailPageLayout    │
+│  Controls scroll, padding, and slot structure per pattern   │
+└────────────────────────┬────────────────────────────────────┘
+                         │
+┌────────────────────────▼────────────────────────────────────┐
+│  LAYER 3 — Page Content  (src/app/[module]/[screen]/)       │
+│  DS components · Ant Design · token-built elements          │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### Layer 1 — Shell rules
+- **Never re-create** CubMenu or CubTopNavigationBar inside a page.
+- **Never pass breadcrumbs manually** — AppShell derives them from the URL.
+- **Never manage sidebar state in a page** — AppShell owns collapsed/expanded.
+- Shell is wired through `src/app/layout.tsx`. Every route uses it automatically.
+
+### Layer 2 — Layout patterns
+
+| Layout | File | Use when |
+|--------|------|----------|
+| `ListPageLayout` | `src/layouts/ListPageLayout.tsx` | Table / grid screen with FilterBar + Toolbar |
+| `DashboardPageLayout` | `src/layouts/DashboardPageLayout.tsx` | KPI cards + charts / overview screen |
+| `DetailPageLayout` | `src/layouts/DetailPageLayout.tsx` | Detail view, form, or wizard |
+
+Import via barrel: `import { ListPageLayout } from '@/layouts'`
+
+**ListPageLayout** — table screens (FilterBar + Toolbar + DataTable)
+```tsx
+<ListPageLayout filterBar={<FilterBar />} toolbar={<DataTableToolbar />}>
+  <DataTable />   {/* fills remaining height, overflow hidden */}
+</ListPageLayout>
+```
+
+**DashboardPageLayout** — KPI + charts screens
+```tsx
+<DashboardPageLayout kpiRow={<div style={{ display: 'flex', gap: 16 }}><KpiCard /></div>}>
+  {/* charts and widgets */}
+</DashboardPageLayout>
+```
+
+**DetailPageLayout** — detail, form, wizard screens
+```tsx
+<DetailPageLayout>
+  {/* form fields, detail sections */}
+</DetailPageLayout>
+```
+
+### Layer 2 — Scroll ownership
+AppShell's `<main>` is `overflow: hidden`. Each layout owns its scroll:
+- `ListPageLayout` — table handles virtual scroll; layout itself is `overflow: hidden`
+- `DashboardPageLayout` — full page scrolls; layout is `overflow: auto`
+- `DetailPageLayout` — full page scrolls; layout is `overflow: auto`
+
+---
+
+## Navigation & Routing
+
+**Single source of truth:** `src/config/navigation.ts`
+
+All routes, menu items, icons, and hierarchy live here.
+AppShell derives breadcrumbs, active menu state, and routing automatically.
+**Never edit AppShell to add routes.**
+
+### Adding a new screen (complete checklist)
+
+**Step 1 — Register in `src/config/navigation.ts`**
+```ts
+// Find the parent group, add a leaf with a route:
+{
+  key: 'assortment',
+  label: 'Assortment',
+  icon: faShirt,
+  children: [
+    { key: 'assortment-planning', label: 'Planning', route: '/assortment/planning' },
+  ],
+},
+```
+
+**Step 2 — Create the page file**
+```
+src/app/assortment/planning/page.tsx
+```
+
+**Step 3 — Implement using a layout**
+```tsx
+'use client';
+import { ListPageLayout } from '@/layouts';
+
+export default function AssortmentPlanningPage() {
+  return (
+    <ListPageLayout filterBar={...} toolbar={...}>
+      {/* table */}
+    </ListPageLayout>
+  );
+}
+```
+
+That's it. Sidebar active state, open submenu, breadcrumbs, URL sync — all automatic.
+
+### NavItem rules
+- `key` must be unique across the entire config
+- `route` is only set on leaf items; follows `/[module]/[screen]` URL pattern
+- `icon` is only set on top-level groups, never on children
+- Items without `route` appear in the menu but are non-navigable (placeholders)
+- Never hard-code breadcrumbs or selectedKey anywhere — always derive from config
+
+---
+
 ## Generation Protocol
 
 ⚠️ ALWAYS follow this order on every request. No exceptions.

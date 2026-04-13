@@ -14,8 +14,9 @@ This skill runs on every output that involves page creation or navigation change
 
 Examples:
 ```
-/mfp/bottom-up-planning
-/mfp/bottom-up-planning/12345/detail
+/financial/bottom-up-planning
+/transfer/transfer-runs
+/transfer/reports/monthly
 /allocation/store-transfers
 /allocation/store-transfers/new
 ```
@@ -24,36 +25,53 @@ Examples:
 
 ## 2. Route Registration
 
-Every new screen requires **two** registrations in
-`src/components/AppShell/AppShell.tsx`:
+**Single file to edit:** `src/config/navigation.ts`
 
-### 2a. ROUTE_MAP — pathname to breadcrumbs + selectedKey
+This is the **only** place to register routes. AppShell, breadcrumbs, and
+active menu state all derive automatically from this config — no manual wiring.
+
+### 2a. Add a NavItem to the config
+
+Find the parent group and add a leaf with a `route`:
 
 ```ts
-'/[module]/[screen]': {
-  breadcrumbs: [
-    { key: 'bc-module', label: '[Module Label]', icon: fa[Icon] },
-    { key: 'bc-screen', label: '[Screen Label]' },
+// src/config/navigation.ts
+
+{
+  key: 'assortment',
+  label: 'Assortment',
+  icon: faShirt,
+  children: [
+    // Add new screen here:
+    { key: 'assortment-planning', label: 'Planning', route: '/assortment/planning' },
+    { key: 'assortment-item-2', label: 'Menu Item 2' },
   ],
-  selectedKey: '[menu-item-key]',
 },
 ```
 
-### 2b. KEY_TO_ROUTE — menu key to pathname (enables click-to-navigate)
+Rules:
+- `key` must be unique across the entire config
+- `route` follows the URL pattern from section 1
+- Icon is only set on top-level group items, not on children
+- Items without `route` are visible in the menu but non-navigable (placeholders)
 
-```ts
-'[menu-item-key]': '/[module]/[screen]',
+### 2b. Create the page file
+
+```
+src/app/[module]/[screen]/page.tsx
 ```
 
-### 2c. Menu Item — add to DEFAULT_MENU_ITEMS in CubMenu
+That's it. Navigation, breadcrumbs, sidebar active state, and URL sync all
+work automatically. No ROUTE_MAP, no KEY_TO_ROUTE, no manual breadcrumb config.
 
-If the screen needs a sidebar link, add the item to the appropriate
-section of `DEFAULT_MENU_ITEMS` in `src/components/CubMenu/CubMenu.tsx`.
-Use the same `key` referenced in `KEY_TO_ROUTE`.
+### What AppShell derives automatically from the config
 
-> **Do NOT create a new CubMenu or CubTopNavigationBar.**
-> These already exist globally in `AppShell`. Only register routes
-> and add menu items to the existing structures.
+| What | How |
+|------|-----|
+| Sidebar active item | `getSelectedKeyForRoute(pathname)` |
+| Open submenu ancestors | `getOpenKeysForRoute(pathname)` |
+| Breadcrumb trail | `getBreadcrumbsForRoute(pathname)` |
+| Click → URL | `getRouteForKey(key)` |
 
 ---
 
@@ -136,17 +154,15 @@ The guard should be applied:
 | Create new entity | `router.push('/module/screen/new')` or Modal |
 | Tab switch | URL param `?tab=` (no page reload) |
 | Breadcrumb click | `router.push()` to ancestor path |
-| Sidebar click | `router.push()` via `KEY_TO_ROUTE` |
+| Sidebar click | Handled by AppShell via `getRouteForKey` |
 
 ---
 
-## 6. 404 and Error Handling
+## 6. 404 and Unregistered Routes
 
-If a route does not match any entry in `ROUTE_MAP`:
-- The breadcrumb falls back to the dynamic `buildBreadcrumbPath` logic
-  using the menu item hierarchy
-- If no match is found at all, the breadcrumb renders empty
+If a pathname has no matching `route` in `src/config/navigation.ts`:
+- The breadcrumb renders empty
+- The sidebar shows no active item
 
-For detail pages with invalid IDs:
-- Show an inline error state: "Record not found"
-- Provide a "Go back" button that calls `router.back()`
+This means a page file exists but the nav config entry is missing.
+**Always register the route in the config before creating the page file.**

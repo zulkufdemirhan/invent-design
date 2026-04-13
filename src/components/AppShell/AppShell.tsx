@@ -1,17 +1,21 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faChevronLeft, faChevronRight, faMoneyBillWave, type IconDefinition } from '@fortawesome/free-solid-svg-icons';
-import CubMenu, {
-  DEFAULT_MENU_ITEMS,
-  DEFAULT_SECONDARY_ITEMS,
-  type CubMenuItem,
-  type CubMenuSubItem,
-} from '@/components/CubMenu/CubMenu';
-import CubTopNavigationBar, { type CubTopNavBreadcrumb } from '@/components/CubTopNavigationBar/CubTopNavigationBar';
+import { faChevronLeft, faChevronRight } from '@fortawesome/free-solid-svg-icons';
+import CubMenu, { type CubMenuItem, type CubMenuSubItem } from '@/components/CubMenu/CubMenu';
+import CubTopNavigationBar from '@/components/CubTopNavigationBar/CubTopNavigationBar';
 import { themeColorsLight } from '@/tokens/colors';
+import {
+  primaryNavConfig,
+  secondaryNavConfig,
+  type NavItem,
+  getRouteForKey,
+  getSelectedKeyForRoute,
+  getBreadcrumbsForRoute,
+  getOpenKeysForRoute,
+} from '@/config/navigation';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -19,93 +23,64 @@ export interface AppShellProps {
   children: React.ReactNode;
 }
 
-// ─── Breadcrumb helpers ───────────────────────────────────────────────────────
+// ─── Nav → CubMenu converters ─────────────────────────────────────────────────
 
-interface BreadcrumbNode {
-  label: string;
-  icon?: IconDefinition;
+function toSubItems(items: NavItem[]): CubMenuSubItem[] {
+  return items.map((item) => ({
+    key: item.key,
+    label: item.label,
+    children: item.children ? toSubItems(item.children) : undefined,
+  }));
 }
 
-/** Recursively search sub-items for the target key. Returns label chain or null. */
-function findInSubItems(key: string, items: CubMenuSubItem[]): BreadcrumbNode[] | null {
-  for (const item of items) {
-    if (item.key === key) return [{ label: item.label }];
-    if (item.children) {
-      const found = findInSubItems(key, item.children);
-      if (found) return [{ label: item.label }, ...found];
-    }
-  }
-  return null;
+function toMenuItems(items: NavItem[]): CubMenuItem[] {
+  return items.map((item) => ({
+    key: item.key,
+    label: item.label,
+    icon: item.icon,
+    expandable: !!(item.children?.length),
+    children: item.children ? toSubItems(item.children) : undefined,
+  }));
 }
-
-/**
- * Returns the breadcrumb path for `key` across all top-level items.
- * e.g. key='pricing-item-2' → [{ label:'Pricing', icon:faCamera }, { label:'Menu Item 2' }]
- */
-function buildBreadcrumbPath(key: string, items: CubMenuItem[]): BreadcrumbNode[] | null {
-  for (const item of items) {
-    if (item.key === key) return [{ label: item.label, icon: item.icon }];
-    if (item.children) {
-      const found = findInSubItems(key, item.children);
-      if (found) return [{ label: item.label, icon: item.icon }, ...found];
-    }
-  }
-  return null;
-}
-
-const ALL_ITEMS = [...DEFAULT_MENU_ITEMS, ...DEFAULT_SECONDARY_ITEMS];
-
-// ─── Route → breadcrumb + selectedKey map ────────────────────────────────────
-
-interface RouteConfig {
-  breadcrumbs: CubTopNavBreadcrumb[];
-  selectedKey: string;
-}
-
-const ROUTE_MAP: Record<string, RouteConfig> = {
-  '/mfp/bottom-up-planning': {
-    breadcrumbs: [
-      { key: 'bc-mfp', label: 'Merchandising Financial Plan', icon: faMoneyBillWave },
-      { key: 'bc-bup', label: 'Bottom-up Planning' },
-    ],
-    selectedKey: 'financial-item-1',
-  },
-};
-
-/** Maps a menu leaf key → the pathname to push when the item is clicked. */
-const KEY_TO_ROUTE: Record<string, string> = {
-  'home': '/',
-  'financial-item-1': '/mfp/bottom-up-planning',
-};
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export function AppShell({ children }: AppShellProps) {
-  const [collapsed, setCollapsed] = useState(false);
-  const [selectedKey, setSelectedKey] = useState('home');
   const pathname = usePathname();
   const router = useRouter();
 
-  // Sync selectedKey when navigating via URL (browser back/forward, direct link)
+  const [collapsed, setCollapsed] = useState(false);
+  const [selectedKey, setSelectedKey] = useState<string>(
+    () => getSelectedKeyForRoute(pathname) ?? 'home',
+  );
+  const [openKeys, setOpenKeys] = useState<string[]>(
+    () => getOpenKeysForRoute(pathname),
+  );
+
+  // Sync selected + open keys when the URL changes (browser back/forward, direct links)
   useEffect(() => {
-    const routeConfig = ROUTE_MAP[pathname];
-    if (routeConfig) setSelectedKey(routeConfig.selectedKey);
+    const key = getSelectedKeyForRoute(pathname);
+    const required = getOpenKeysForRoute(pathname);
+    if (key) setSelectedKey(key);
+    // Merge: keep any manually opened keys, add required ancestors
+    setOpenKeys((prev) => Array.from(new Set([...prev, ...required])));
   }, [pathname]);
 
   const handleItemClick = (key: string) => {
     setSelectedKey(key);
-    const route = KEY_TO_ROUTE[key];
+    const route = getRouteForKey(key);
     if (route) router.push(route);
   };
 
-  const routeConfig = ROUTE_MAP[pathname];
-  const path = routeConfig ? null : buildBreadcrumbPath(selectedKey, ALL_ITEMS);
-  const breadcrumbs: CubTopNavBreadcrumb[] = routeConfig?.breadcrumbs ?? path?.map((node, index) => ({
-    key: `bc-${index}`,
-    label: node.label,
-    // Icon only on the first (parent) segment
-    icon: index === 0 ? node.icon : undefined,
-  })) ?? [];
+  const handleOpenChange = (keys: string[]) => {
+    setOpenKeys(keys);
+  };
+
+  const breadcrumbs = getBreadcrumbsForRoute(pathname);
+
+  // Stable references — recalculated only when config changes (never at runtime)
+  const menuItems = useMemo(() => toMenuItems(primaryNavConfig), []);
+  const secondaryMenuItems = useMemo(() => toMenuItems(secondaryNavConfig), []);
 
   return (
     <div
@@ -120,8 +95,12 @@ export function AppShell({ children }: AppShellProps) {
       <div style={{ position: 'relative', flexShrink: 0 }}>
         <CubMenu
           collapsed={collapsed}
+          items={menuItems}
+          secondaryItems={secondaryMenuItems}
           selectedKey={selectedKey}
+          openKeys={openKeys}
           onItemClick={handleItemClick}
+          onOpenChange={handleOpenChange}
           logoIcon={
             <img
               src="/images/logo.png"
@@ -191,11 +170,11 @@ export function AppShell({ children }: AppShellProps) {
           showTabs={false}
         />
 
-        {/* Page Content */}
+        {/* Page Content — overflow: hidden so layout patterns control their own scroll */}
         <main
           style={{
             flex: 1,
-            overflow: 'auto',
+            overflow: 'hidden',
             background: themeColorsLight.colorBgLayout,
           }}
         >
