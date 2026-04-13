@@ -98,6 +98,9 @@ import { iconSize } from '@/tokens/icons';
 - No comments on self-evident code
 - No placeholder TODOs in delivered code
 
+**What "speculative" does NOT mean:**
+UI states the user actually sees are never speculative. Loading, Empty, and Error states are **mandatory** (see `screen-generation.md` Step 5) because the user will hit them in real usage. "Speculative" only refers to code paths that have no realistic trigger: switch-cases for backend error codes that don't exist yet, feature flags for unscoped features, retry-with-backoff logic without a flaky dependency. If in doubt: a state the user can reach = required; a code path only hypothetical services would trigger = speculative.
+
 ---
 
 ## Layout & Responsiveness

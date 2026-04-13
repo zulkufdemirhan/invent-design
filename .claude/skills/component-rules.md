@@ -91,6 +91,47 @@ This applies to every component, layout, cell type, toolbar, and filter bar in t
 
 ---
 
+## Data Table Rendering Pattern
+
+A DataSheet table is **not rendered cell-by-cell in JSX**. Writing 200 rows × 8 columns inline would blow past the 200-line `page.tsx` limit immediately.
+
+**The required pattern:**
+
+1. **Column definitions** live in `[screenName].config.ts`:
+   ```ts
+   export const transferRunsColumns: ColumnDef<TransferRun>[] = [
+     { key: 'sku', label: 'SKU', width: 120, cellType: 'text' },
+     { key: 'status', label: 'Status', width: 140, cellType: 'status' },
+     { key: 'quantity', label: 'Qty', width: 80, cellType: 'numeric' },
+     // ...
+   ];
+   ```
+
+2. **Row data** lives in `use[ScreenName].ts` hook (or `[screenName].mock.ts` until wired to backend).
+
+3. **Page file** composes them with `.map()` loops — never inline JSX per cell:
+   ```tsx
+   <DataTableContainer>
+     <div>{columns.map(col => <DataSheetTitle key={col.key} {...col} />)}</div>
+     {rows.map(row => (
+       <div key={row.id}>
+         {columns.map(col => renderCell(row, col))}
+       </div>
+     ))}
+     <DataTableTotalRow ... />
+   </DataTableContainer>
+   ```
+
+4. **`renderCell(row, col)`** is a local helper in the page file (or extracted if it exceeds ~30 lines). It switches on `col.cellType` and returns the right DataSheet component.
+
+**Rules:**
+- Never hand-write each cell in JSX
+- Never inline more than 5 rows of data in the page file — extract to `.config.ts` or a hook
+- Column count, labels, and widths are **config**, not JSX
+- If the table has hierarchical rows (Level 1/2/3), the config holds the tree; the page recursively maps it
+
+---
+
 ## DataTableContainer
 
 **File:** `src/components/DataTable/DataTableContainer.tsx`

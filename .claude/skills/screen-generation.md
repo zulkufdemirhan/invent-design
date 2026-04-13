@@ -128,6 +128,25 @@ Before delivering the screen, verify:
 - [ ] Page file is at `src/app/[module]/[screen]/page.tsx`
 - [ ] No hardcoded breadcrumbs anywhere — AppShell derives them automatically
 
+### Module and screen names are not guessed
+
+File paths must match the nav config exactly. The AI **never invents** a module name or guesses a directory.
+
+| Source of truth | Derivation |
+|-----------------|------------|
+| `[module]` directory name | Top-level parent `NavItem.key` (e.g. `transfer`, `financial`, `assortment`) |
+| `[screen]` directory name | Leaf `NavItem.key` minus the module prefix (e.g. `store-scenario`, `bottom-up-planning`) |
+| `route` value | Must equal `/[module]/[screen]` — no shortcuts, no aliases |
+
+**Order of operations (strict):**
+1. If the module does not exist in `navigation.ts`, add the parent `NavItem` first — never create `src/app/[module]/` without the config entry.
+2. Add the leaf `NavItem` with its `route`.
+3. Only then create `src/app/[module]/[screen]/page.tsx`.
+
+Also forbidden:
+- Placing a screen directly under `src/app/[screen]/` (no module) — every screen belongs to a module.
+- Creating files anywhere under `src/components/` while building a screen — that directory is team-managed. Sub-components for the current screen go in `src/app/[module]/[screen]/`.
+
 See `navigation-and-routing.md` for the full registration checklist.
 
 ---
