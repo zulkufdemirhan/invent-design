@@ -100,6 +100,17 @@ import { iconSize } from '@/tokens/icons';
 
 ---
 
+## Layout & Responsiveness
+
+- **No fixed-width layouts.** All page containers use `width: '100%'` and flex/grid — never a hard pixel width on the outer shell.
+- **DataSheet column widths are proportional or flexible.** Prefer `flex: 1` or `minWidth` + auto-fill patterns. Fixed-px columns are acceptable only for narrow utility columns (checkbox: 40px, action buttons: 80–120px).
+- **Avoid layouts that break above 1440px.** The shell expands to fill the viewport — content must fill the available space, not be pinned to a narrow center column.
+- **Vertical rhythm is token-driven.** Use `paddingLG` (24px) for section gaps, `paddingSM` (12px) for intra-section spacing, `paddingXS` (8px) for tight groups. Never mix ad-hoc numbers.
+- **Flex gap over margin.** Prefer `gap` on flex/grid containers instead of adding `marginBottom` to every child.
+- **Test at three widths mentally:** 1024px (laptop), 1440px (desktop), 1920px (wide monitor). Layouts must be usable at all three — not just one.
+
+---
+
 ## Accessibility
 
 - Semantic HTML: `<button>`, `<nav>`, `<main>`, `<header>`, `<section>`

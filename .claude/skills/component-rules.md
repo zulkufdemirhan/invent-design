@@ -332,6 +332,23 @@ See CLAUDE.md → Shell & Layout Architecture for full usage rules.
 
 ---
 
+## Progressive Disclosure
+
+Never render all available content at once when the count exceeds optimal visible limits.
+
+| Situation | Pattern |
+|-----------|---------|
+| Filter chips > 4 | Show 4, then "+N more" pill that opens a full filter panel |
+| Table columns > visible viewport | Allow horizontal scroll inside the container; never shrink columns below readability |
+| Action buttons per row > 3 | Collapse extras into a "more" (`⋯`) icon button |
+| Navigation items overflow sidebar | Group under a collapsible section; never truncate labels |
+| Long text in a cell | Truncate with ellipsis; show full value in tooltip |
+| Search results | Paginate; default page size 20–50 rows depending on row density |
+
+**The rule:** collapse overflow — never omit it. The "+N more" or pagination must be functional, not a visual stub.
+
+---
+
 ## Fallback Strategy
 
 When multiple components could work:

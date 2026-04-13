@@ -93,6 +93,24 @@ Every button, row, link, and form control must have:
 - `active` — pressed state
 - `disabled` — visually distinct, not interactive, not focusable
 
+### Interaction Inference
+
+When a naturally interactive element has no explicitly specified behavior, default to the most user-friendly, contextually appropriate pattern. Never leave an interaction undefined.
+
+| Element | Default behavior when unspecified |
+|---------|-----------------------------------|
+| Filter chip / filter item | Opens a dropdown or select panel scoped to that filter |
+| Table row | Navigates to detail view, or opens a detail drawer if the screen owns both list and detail |
+| Column header | Toggles sort ascending → descending → none |
+| Truncated text | Shows full value in a tooltip on hover |
+| Icon-only button | Shows label tooltip on hover |
+| Empty state | Renders a primary CTA that triggers the creation or import flow |
+| Long / unbounded list | Paginates or virtualizes — never renders all items flat |
+| Multi-select table | Activates a contextual bulk-action bar above the table |
+| Form field with validation | Shows inline error message below the field on blur, not just on submit |
+
+**The rule:** if a pattern is naturally interactive, the interaction must be implemented — not deferred. "User didn't specify" is not an excuse to skip it.
+
 ### Accessibility
 
 - Semantic HTML elements (`<button>`, `<nav>`, `<main>`, `<header>`)
